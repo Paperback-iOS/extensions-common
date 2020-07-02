@@ -1,12 +1,13 @@
 {
   "name": "paperback-extensions-common",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "The base methods and structures for a Paperback extension repo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "tsc && node dist/index.js",
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "tsc"
   },
   "author": "Paperback",
   "license": "ISC",

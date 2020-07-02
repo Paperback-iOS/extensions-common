@@ -1,5 +1,5 @@
 
-import { LanguageCode } from '../../models/Languages/Languages'
+import { LanguageCode } from '../../models/Languages'
 
 export interface Chapter {
 

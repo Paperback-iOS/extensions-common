@@ -3,15 +3,15 @@
  * This allows us to to use a generic api to make the calls against any source
  */
 
-import { SearchRequest } from "../models/SearchRequest/SearchRequest"
-import { Manga } from "../models/Manga/Manga"
-import { Request } from "../models/RequestObject/RequestObject"
-import { Chapter } from "../models/Chapter/Chapter"
-import { ChapterDetails } from "../models/ChapterDetails/ChapterDetails"
-import { MangaTile } from "../models/MangaTile/MangaTile"
-import { HomeSectionRequest, HomeSection } from "../models/HomeSection/HomeSection"
-import { TagSection } from "../models/TagSection/TagSection"
-import { SourceTag } from "../models/SourceTag/SourceTag"
+import { SearchRequest } from "../models/SearchRequest"
+import { Manga } from "../models/Manga"
+import { Request } from "../models/RequestObject"
+import { Chapter } from "../models/Chapter"
+import { ChapterDetails } from "../models/ChapterDetails"
+import { MangaTile } from "../models/MangaTile"
+import { HomeSectionRequest, HomeSection } from "../models/HomeSection"
+import { TagSection } from "../models/TagSection"
+import { SourceTag } from "../models/SourceTag"
 
 export abstract class Source {
   protected cheerio: CheerioAPI

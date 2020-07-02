@@ -1,4 +1,4 @@
-import { TagSection } from "../TagSection/TagSection";
+import { TagSection } from "../TagSection";
 
 export interface Manga {
 

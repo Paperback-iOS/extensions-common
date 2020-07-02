@@ -1,4 +1,4 @@
-import { Chapter } from "./Chapter"
+import { Chapter } from "."
 
 const _global = global as any
 

@@ -1,4 +1,4 @@
-import { MangaTile, IconText } from "./MangaTile"
+import { MangaTile, IconText } from "."
 
 const _global = global as any
 _global.createMangaTile = function (mangaTile: MangaTile): MangaTile {

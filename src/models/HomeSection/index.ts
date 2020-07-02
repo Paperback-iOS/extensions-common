@@ -1,5 +1,5 @@
-import { Request } from '../RequestObject/RequestObject'
-import { MangaTile } from '../MangaTile/MangaTile'
+import { Request } from '../RequestObject'
+import { MangaTile } from '../MangaTile'
 
 export interface HomeSectionRequest {
   /**

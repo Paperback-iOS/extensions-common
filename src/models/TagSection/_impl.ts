@@ -1,4 +1,4 @@
-import { TagSection, Tag } from './TagSection'
+import { TagSection, Tag } from '.'
 
 const _global = global as any
 

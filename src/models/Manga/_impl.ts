@@ -1,4 +1,4 @@
-import { Manga } from "./Manga"
+import { Manga } from "."
 
 const _global = global as any
 

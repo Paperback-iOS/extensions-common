@@ -1,4 +1,4 @@
-import { HomeSection, HomeSectionRequest } from "./HomeSection"
+import { HomeSection, HomeSectionRequest } from "."
 
 const _global = global as any
 
