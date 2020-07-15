@@ -3,15 +3,19 @@
  * This allows us to to use a generic api to make the calls against any source
  */
 
-import { SearchRequest } from "../models/SearchRequest"
-import { Manga } from "../models/Manga"
-import { Request } from "../models/RequestObject"
-import { Chapter } from "../models/Chapter"
-import { ChapterDetails } from "../models/ChapterDetails"
-import { MangaTile } from "../models/MangaTile"
-import { HomeSectionRequest, HomeSection } from "../models/HomeSection"
-import { TagSection } from "../models/TagSection"
-import { SourceTag } from "../models/SourceTag"
+import {
+  HomeSection,
+  SearchRequest,
+  Manga,
+  Request,
+  Chapter,
+  ChapterDetails,
+  MangaTile,
+  HomeSectionRequest,
+  TagSection,
+  SourceTag,
+  MangaUpdates
+} from ".."
 
 export abstract class Source {
   protected cheerio: CheerioAPI
@@ -80,7 +84,7 @@ export abstract class Source {
    * An optional field of source tags: Little bits of metadata which is rendered on the website
    * under your repositories section
    */
-  get sourceTags(): SourceTag[] {return []}
+  get sourceTags(): SourceTag[] { return [] }
 
   /**
    * A function returning a request for manga information on a list of multiple mangas.
@@ -215,7 +219,7 @@ export abstract class Source {
    * the page number in the {@link Source.filterUpdatedMangaRequest} method and run it again with the new
    * parameter
    */
-  filterUpdatedManga(data: any, metadata: any): { 'updatedMangaIds': string[], 'nextPage': boolean } | null { return null }
+  filterUpdatedManga(data: any, metadata: any): MangaUpdates | null { return null }
 
   /**
    * (OPTIONAL METHOD) A function which should generate a {@link HomeSectionRequest} with the intention
