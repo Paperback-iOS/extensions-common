@@ -1,4 +1,4 @@
-import { MangaUpdates } from "./MangaUpdate"
+import { MangaUpdates } from "."
 
 const _global = global as any
 
