@@ -10,6 +10,7 @@ import { ChapterDetails } from './models/ChapterDetails'
 import { SearchRequest } from './models/SearchRequest'
 import { Request } from './models/RequestObject'
 import { MangaTile } from './models/MangaTile'
+import { MangaUpdates } from './models/MangaUpdate'
 
 // import axios from 'axios'  <- use this when you've fixed the typings
 const axios = require('axios')
@@ -145,11 +146,11 @@ export class APIWrapper {
      * @param referenceTime will only get manga up to this time
      * @returns List of the ids of the manga that were recently updated
      */
-    async filterUpdatedManga(source: Source, ids: string[], referenceTime: Date): Promise<string[]> {
+    async filterUpdatedManga(source: Source, ids: string[], referenceTime: Date): Promise<MangaUpdates> {
         let currentPage = 1
         let hasResults = true
         let request = source.filterUpdatedMangaRequest(ids, referenceTime, currentPage)
-        if (request == null) return Promise.resolve([])
+        if (request == null) return Promise.resolve(createMangaUpdates({ids: [], moreResults: false}))
         let url = request.url
         let headers: any = request.headers == undefined ? {} : request.headers
         headers['Cookie'] = this.formatCookie(request)
@@ -160,7 +161,7 @@ export class APIWrapper {
             var data = await this.makeFilterRequest(url, request, headers, currentPage)
             if (data.code || data.code == 'ECONNABORTED') retries++
             else if (!data.data) {
-                return []
+                createMangaUpdates({ids: [], moreResults: false})
             }
         } while (data.code && retries < 5)
 
@@ -175,7 +176,7 @@ export class APIWrapper {
                     data = await this.makeFilterRequest(url, request, headers, currentPage)
                     if (data.code || data.code == 'ECONNABORTED') retries++
                     else if (!data.data) {
-                        return manga
+                        return createMangaUpdates({ids: manga, moreResults: true})
                     }
                 } while (data.code && retries < 5)
             } else {
@@ -183,7 +184,7 @@ export class APIWrapper {
             }
         }
 
-        return manga
+        return createMangaUpdates({ids: manga, moreResults: false})
     }
 
     // In the case that a source takes too long (LOOKING AT YOU MANGASEE)
