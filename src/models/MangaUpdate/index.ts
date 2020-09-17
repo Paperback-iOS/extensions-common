@@ -1,6 +1,6 @@
 export interface MangaUpdates {
     ids: string[]
-    moreResults?: boolean
+    nextPage?: Request
 }
 
 declare global {

@@ -16,6 +16,7 @@ import {
   SourceTag,
   MangaUpdates
 } from ".."
+import { PagedResults } from "../models/PagedResults"
 
 export abstract class Source {
   protected cheerio: CheerioAPI
@@ -154,14 +155,14 @@ export abstract class Source {
    * @param page It is likely that your search will have more than one page. This paramter determines which page
    * of the search results is being requested
    */
-  abstract searchRequest(query: SearchRequest, page: number): Request | null
+  abstract searchRequest(query: SearchRequest): Request | null
 
   /**
    * A function which should handle parsing apart HTML returned from {@link Source.getChapterDetailsRequest}
    * and generate a list of {@link MangaTile} objects, one for each result on this page
    * @param data HTML which can be parsed to get a list of all manga matching your search query
    */
-  abstract search(data: any, metadata: any): MangaTile[] | null
+  abstract search(data: any, metadata: any): PagedResults | null
 
   // <-----------        OPTIONAL METHODS        -----------> //
 
@@ -248,7 +249,7 @@ export abstract class Source {
    * @param key The current page that is being viewed
    * @param page The page number which you are currently searching
    */
-  getViewMoreRequest(key: string, page: number): Request | null { return null }
+  getViewMoreRequest(key: string): Request | null { return null }
 
   /**
    * (OPTIONAL METHOD) A function which should handle parsing apart a page
@@ -256,7 +257,7 @@ export abstract class Source {
    * @param data HTML which should be parsed into a {@link MangaTile} object
    * @param key 
    */
-  getViewMoreItems(data: any, key: string): MangaTile[] | null { return null }
+  getViewMoreItems(data: any, key: string): PagedResults | null { return null }
 
 
 
