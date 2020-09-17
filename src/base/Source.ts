@@ -257,7 +257,7 @@ export abstract class Source {
    * @param data HTML which should be parsed into a {@link MangaTile} object
    * @param key 
    */
-  getViewMoreItems(data: any, key: string): PagedResults | null { return null }
+  getViewMoreItems(data: any, key: string, metadata: any): PagedResults | null { return null }
 
 
 
