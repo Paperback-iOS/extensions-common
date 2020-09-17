@@ -206,7 +206,7 @@ export abstract class Source {
    * @param page A page number parameter may be used if your update scanning requires you to 
    * traverse multiple pages.
    */
-  filterUpdatedMangaRequest(ids: any, time: Date, page: number): Request | null { return null }
+  filterUpdatedMangaRequest(ids: any, time: Date): Request | null { return null }
 
   /**
    * (OPTIONAL METHOD) A function which should handle parsing apart HTML returned from {@link Source.filterUpdatedMangaRequest}

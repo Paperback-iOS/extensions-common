@@ -1,4 +1,5 @@
 import { MangaTile } from "..";
+import { Request } from "..";
 
 export interface PagedResults {
     results: MangaTile[]
