@@ -1,3 +1,5 @@
+import {Request} from '..'
+
 export interface MangaUpdates {
     ids: string[]
     nextPage?: Request

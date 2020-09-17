@@ -145,10 +145,12 @@ export class APIWrapper {
      * @param referenceTime will only get manga up to this time
      * @returns List of the ids of the manga that were recently updated
      */
+
+     // TODO: Update method to support new changes
     async filterUpdatedManga(source: Source, ids: string[], referenceTime: Date): Promise<string[]> {
         let currentPage = 1
         let hasResults = true
-        let request = source.filterUpdatedMangaRequest(ids, referenceTime, currentPage)
+        let request = source.filterUpdatedMangaRequest(ids, referenceTime)
         if (request == null) return Promise.resolve([])
         let url = request.url
         let headers: any = request.headers == undefined ? {} : request.headers
