@@ -319,7 +319,7 @@ export class APIWrapper {
                 timeout: request.timeout || 0
             })
 
-            return source.getViewMoreItems(data.data, key)?.results
+            return source.getViewMoreItems(data.data, key, request.metadata)?.results
         } catch (e) {
             console.log(e)
             return []
