@@ -41,7 +41,7 @@ export interface HomeSection {
    * when the user tries to scroll furthur on the HomePage section. This usually means 
    * that it will traverse to another page, and render more information
    */
-  view_more?: boolean
+  view_more?: Request
 }
 
 declare global {

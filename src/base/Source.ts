@@ -244,14 +244,6 @@ export abstract class Source {
   getHomePageSections(data: any, section: HomeSection[]): HomeSection[] | null { return null }
 
   /**
-   * (OPTIONAL METHOD) For many of the home page sections, there is an ability to view more of that selection
-   * Calling this function should generate a {@link Request} targeting a new page of a given key
-   * @param key The current page that is being viewed
-   * @param page The page number which you are currently searching
-   */
-  getViewMoreRequest(key: string): Request | null { return null }
-
-  /**
    * (OPTIONAL METHOD) A function which should handle parsing apart a page
    * and generate different {@link MangaTile} objects which can be found on it
    * @param data HTML which should be parsed into a {@link MangaTile} object
