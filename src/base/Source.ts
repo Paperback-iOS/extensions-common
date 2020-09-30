@@ -166,16 +166,18 @@ export abstract class Source {
 
   // <-----------        OPTIONAL METHODS        -----------> //
 
+  requestModifier(request: Request): Request { return request }
+
+  getMangaShareUrl(mangaId: string): string | null { return null }
+
+  getCloudflareBypassRequest(): Request | null { return null }
+
   /**
    * Returns the number of calls that can be done per second from the application
    * This is to avoid IP bans from many of the sources
    * Can be adjusted per source since different sites have different limits
    */
   get rateLimit(): Number { return 2 }
-
-  requestModifier(request: Request): Request { return request }
-
-  getMangaShareUrl(mangaId: string): string | null { return null }
 
   /**
    * (OPTIONAL METHOD) Different sources have different tags available for searching. This method
