@@ -13,3 +13,6 @@ coverage
 docs
 
 .idea
+
+# mac stuff
+.DS_Store

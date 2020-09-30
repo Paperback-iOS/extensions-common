@@ -234,7 +234,7 @@ export abstract class Source {
   /**
    * (OPTIONAL METHOD) A function which should handle parsing apart HTML returned from {@link Source.getHomePageSectionRequest}
    * and finish filling out the {@link HomeSection} objects. 
-   * Generally this simply should update the parameter obejcts with all of the correct contents, and 
+   * Generally this simply should update the parameter objects with all of the correct contents, and 
    * return the completed array
    * @param data The HTML which should be parsed into the {@link HomeSection} objects. There may only be one element in the array, that is okay
    * if only one section exists

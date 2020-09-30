@@ -38,7 +38,7 @@ export interface HomeSection {
   /**
    * Should you be able to scroll, and view more manga on this section? 
    * This method, when true, triggers the {@link Source.getViewMoreRequest} method
-   * when the user tries to scroll furthur on the HomePage section. This usually means 
+   * when the user tries to scroll further on the HomePage section. This usually means 
    * that it will traverse to another page, and render more information
    */
   view_more?: boolean
