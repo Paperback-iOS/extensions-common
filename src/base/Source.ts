@@ -166,16 +166,18 @@ export abstract class Source {
 
   // <-----------        OPTIONAL METHODS        -----------> //
 
+  requestModifier(request: Request): Request { return request }
+
+  getMangaShareUrl(mangaId: string): string | null { return null }
+
+  getCloudflareBypassRequest(): Request | null { return null }
+
   /**
    * Returns the number of calls that can be done per second from the application
    * This is to avoid IP bans from many of the sources
    * Can be adjusted per source since different sites have different limits
    */
   get rateLimit(): Number { return 2 }
-
-  requestModifier(request: Request): Request { return request }
-
-  getMangaShareUrl(mangaId: string): string | null { return null }
 
   /**
    * (OPTIONAL METHOD) Different sources have different tags available for searching. This method
@@ -244,20 +246,12 @@ export abstract class Source {
   getHomePageSections(data: any, section: HomeSection[]): HomeSection[] | null { return null }
 
   /**
-   * (OPTIONAL METHOD) For many of the home page sections, there is an ability to view more of that selection
-   * Calling this function should generate a {@link Request} targeting a new page of a given key
-   * @param key The current page that is being viewed
-   * @param page The page number which you are currently searching
-   */
-  getViewMoreRequest(key: string): Request | null { return null }
-
-  /**
    * (OPTIONAL METHOD) A function which should handle parsing apart a page
    * and generate different {@link MangaTile} objects which can be found on it
    * @param data HTML which should be parsed into a {@link MangaTile} object
    * @param key 
    */
-  getViewMoreItems(data: any, key: string): PagedResults | null { return null }
+  getViewMoreItems(data: any, key: string, metadata: any): PagedResults | null { return null } 
 
 
 

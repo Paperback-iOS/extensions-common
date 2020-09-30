@@ -304,26 +304,26 @@ export class APIWrapper {
 
     // TODO: update this to return a promise of PagedResults
     async getViewMoreItems(source: Source, key: string, page: number) { 
-        let request = source.getViewMoreRequest(key)
-        if (request == null) return Promise.resolve([])
-        let headers: any = request.headers == undefined ? {} : request.headers
-        headers['Cookie'] = this.formatCookie(request)
-        headers['User-Agent'] = 'Paperback-iOS'
+        // let request = source.getViewMoreRequest(key)
+        // if (request == null) return Promise.resolve([])
+        // let headers: any = request.headers == undefined ? {} : request.headers
+        // headers['Cookie'] = this.formatCookie(request)
+        // headers['User-Agent'] = 'Paperback-iOS'
 
-        try {
-            var data = await axios.request({
-                url: `${request.url}${request.param ?? ''}`,
-                method: request.method,
-                headers: headers,
-                data: request.data,
-                timeout: request.timeout || 0
-            })
+        // try {
+        //     var data = await axios.request({
+        //         url: `${request.url}${request.param ?? ''}`,
+        //         method: request.method,
+        //         headers: headers,
+        //         data: request.data,
+        //         timeout: request.timeout || 0
+        //     })
 
-            return source.getViewMoreItems(data.data, key)?.results
-        } catch (e) {
-            console.log(e)
-            return []
-        }
+        //     return source.getViewMoreItems(data.data, key, request.metadata)?.results
+        // } catch (e) {
+        //     console.log(e)
+        //     return []
+        // }
     }
 
     private formatCookie(info: Request): string {
