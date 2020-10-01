@@ -88,6 +88,13 @@ export abstract class Source {
   get sourceTags(): SourceTag[] { return [] }
 
   /**
+   * A required field which points to the source's front-page.
+   * Eg. https://mangadex.org
+   * This must be a fully qualified URL
+   */
+  abstract get websiteBaseURL(): string
+
+  /**
    * A function returning a request for manga information on a list of multiple mangas.
    * The end-goal of this function set is to populate a list of {@link Manga} objects
    * so be sure you are targeting a URL which can be parsed to pull the required information
