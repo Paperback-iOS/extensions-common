@@ -14,7 +14,7 @@ export interface SourceTag {
  * Common colors are red for (Broken), yellow for (+18), grey for (Country-Proof)
  */
 export enum TagType {
-    BLUE = '',
+    BLUE = 'default',
     GREEN = 'success',
     GREY = 'info',
     YELLOW = 'warning',
