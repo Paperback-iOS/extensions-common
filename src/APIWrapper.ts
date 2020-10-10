@@ -145,10 +145,12 @@ export class APIWrapper {
      * @param referenceTime will only get manga up to this time
      * @returns List of the ids of the manga that were recently updated
      */
+
+     // TODO: Update method to support new changes
     async filterUpdatedManga(source: Source, ids: string[], referenceTime: Date): Promise<string[]> {
         let currentPage = 1
         let hasResults = true
-        let request = source.filterUpdatedMangaRequest(ids, referenceTime, currentPage)
+        let request = source.filterUpdatedMangaRequest(ids, referenceTime)
         if (request == null) return Promise.resolve([])
         let url = request.url
         let headers: any = request.headers == undefined ? {} : request.headers
@@ -253,8 +255,9 @@ export class APIWrapper {
      * @param query
      * @param page
      */
+    // TODO: update this to return a promise of PagedResults
     async search(source: Source, query: SearchRequest, page: number): Promise<MangaTile[]> {
-        let request = source.searchRequest(query, page)
+        let request = source.searchRequest(query)
         if (request == null) return Promise.resolve([])
 
         let headers: any = request.headers == undefined ? {} : request.headers
@@ -270,7 +273,7 @@ export class APIWrapper {
                 timeout: request.timeout || 0
             })
 
-            return source.search(data.data, request.metadata) ?? []
+            return source.search(data.data, request.metadata)?.results ?? []
         } catch (e) {
             return []
         }
@@ -299,27 +302,28 @@ export class APIWrapper {
         }
     }
 
-    async getViewMoreItems(source: Source, key: string, page: number) {
-        let request = source.getViewMoreRequest(key, page)
-        if (request == null) return Promise.resolve([])
-        let headers: any = request.headers == undefined ? {} : request.headers
-        headers['Cookie'] = this.formatCookie(request)
-        headers['User-Agent'] = 'Paperback-iOS'
+    // TODO: update this to return a promise of PagedResults
+    async getViewMoreItems(source: Source, key: string, page: number) { 
+        // let request = source.getViewMoreRequest(key)
+        // if (request == null) return Promise.resolve([])
+        // let headers: any = request.headers == undefined ? {} : request.headers
+        // headers['Cookie'] = this.formatCookie(request)
+        // headers['User-Agent'] = 'Paperback-iOS'
 
-        try {
-            var data = await axios.request({
-                url: `${request.url}${request.param ?? ''}`,
-                method: request.method,
-                headers: headers,
-                data: request.data,
-                timeout: request.timeout || 0
-            })
+        // try {
+        //     var data = await axios.request({
+        //         url: `${request.url}${request.param ?? ''}`,
+        //         method: request.method,
+        //         headers: headers,
+        //         data: request.data,
+        //         timeout: request.timeout || 0
+        //     })
 
-            return source.getViewMoreItems(data.data, key)
-        } catch (e) {
-            console.log(e)
-            return []
-        }
+        //     return source.getViewMoreItems(data.data, key, request.metadata)?.results
+        // } catch (e) {
+        //     console.log(e)
+        //     return []
+        // }
     }
 
     private formatCookie(info: Request): string {

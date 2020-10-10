@@ -8,6 +8,7 @@ import { ChapterDetails } from '../models/ChapterDetails'
 import { TagSection } from '../models/TagSection'
 import { HomeSectionRequest, HomeSection } from '../models/HomeSection'
 import { LanguageCode } from '../models/Languages'
+import { PagedResults } from '../models/PagedResults'
 
 export abstract class Madara extends Source {
 
@@ -180,7 +181,7 @@ export abstract class Madara extends Source {
 		return chapterDetails
 	}
 
-    searchRequest(query: SearchRequest, page: number): Request | null {
+    constructSearchRequest(query: SearchRequest, page: Number): Request | undefined {
         let url = `${this.MadaraDomain}/page/${page}/?`
         let author = query.author || ''
         let artist = query.artist || ''
@@ -189,11 +190,19 @@ export abstract class Madara extends Source {
 
         return createRequestObject({
             url: url + new URLSearchParams(paramaters).toString(),
-            method: 'GET'
+            method: 'GET',
+            metadata: {
+                request: query,
+                page: page
+            }
         })
     }
 
-    search(data: any): MangaTile[] | null { 
+    searchRequest(query: SearchRequest): Request | null {
+        return this.constructSearchRequest(query, 1) ?? null
+    }
+
+    search(data: any, metadata: any): PagedResults | null { 
         let $ = this.cheerio.load(data)
 
         let mangas: MangaTile[] = []
@@ -216,6 +225,9 @@ export abstract class Madara extends Source {
             }
         }
 
-        return mangas
+        return createPagedResults({
+            results: mangas,
+            nextPage: this.constructSearchRequest(metadata.query, metadata.page + 1) ?? undefined
+        })
     }
 }
