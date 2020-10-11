@@ -1,6 +1,6 @@
 {
   "name": "paperback-extensions-common",
-  "version": "1.1.7",
+  "version": "1.1.10",
   "description": "The base methods and structures for a Paperback extension repo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,8 +13,12 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "browserify": "^17.0.0",
     "cheerio": "^1.0.0-rc.3",
-    "typescript": "^3.9.7"
+    "gulp": "^4.0.2",
+    "tsify": "^5.0.2",
+    "typescript": "^3.9.7",
+    "vinyl-source-stream": "^2.0.0"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.21",
