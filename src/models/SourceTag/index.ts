@@ -10,11 +10,13 @@ export interface SourceTag {
 
 /**
  * An enumerator which {@link SourceTags} uses to define the color of the tag rendered on the website.
- * Info is blue, success is green, warning is yellow and danger is red.
+ * Five types are available: blue, green, grey, yellow and red, the default one is blue.
+ * Common colors are red for (Broken), yellow for (+18), grey for (Country-Proof)
  */
 export enum TagType {
-    WARNING = 'warning',
-    INFO = 'info',
-    SUCCESS = 'success',
-    DANGER = 'danger'
+    BLUE = 'default',
+    GREEN = 'success',
+    GREY = 'info',
+    YELLOW = 'warning',
+    RED = 'danger'
 }

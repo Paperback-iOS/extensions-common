@@ -5,7 +5,7 @@ export interface Tag {
     id: string
 
     /**
-     * A user-prsesentable representation of how people read the tag. This 
+     * A user-presentable representation of how people read the tag. This 
      * may be the same as {@link Tag.id}
      */
     label: string

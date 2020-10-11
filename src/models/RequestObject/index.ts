@@ -10,7 +10,7 @@ export interface Request {
   method: string
 
   /**
-   * Matadata is something which can be applied to a Request, which will
+   * Metadata is something which can be applied to a Request, which will
    * be passed on to the function which consumes this request. By inserting
    * data here, you are able to forward any data you need as a Source developer
    * to the methods meant to parse the returning data
@@ -22,7 +22,7 @@ export interface Request {
    */
   headers?: Record<string, string>
 
-  //TODO: Data documentatino may need edited
+  //TODO: Data documentation may need edited
   /**
    * Data which 
    */
