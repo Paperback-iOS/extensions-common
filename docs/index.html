@@ -1,0 +1,226 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>paperback-extensions-common</title>
+	<meta name="description" content="Documentation for paperback-extensions-common">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">paperback-extensions-common</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>paperback-extensions-common</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#paperback-sources" id="paperback-sources" style="color: inherit; text-decoration: none;">
+					<h1>Paperback Sources</h1>
+				</a>
+				<a href="#about-sources" id="about-sources" style="color: inherit; text-decoration: none;">
+					<h2>About Sources</h2>
+				</a>
+				<p>Sources were a highly requested feature for Paperback as it allows users to read manga that are otherwise not on MangaDex (The default source of the app). The sources are community-driven, and may be updated and changed without requiring an application update. This allows for a rolling development process, implementing changes as they come in, rather than waiting for the application developer to implement new sources and bugfixes. </p>
+				<a href="#developing-a-source" id="developing-a-source" style="color: inherit; text-decoration: none;">
+					<h2>Developing A Source</h2>
+				</a>
+				<a href="#source-architecture" id="source-architecture" style="color: inherit; text-decoration: none;">
+					<h3>Source Architecture</h3>
+				</a>
+				<p>The two main driving points why the architecture was developed in such a way is to ensure abstraction and a separation of concerns. The extensions do not have direct access to any http libraries. This is to ensure that the developer cannot access/do more than is required.
+				The main driving application architecture is a factory -- it is not aware of any functions other than the ones that are designated are required or optional. The application treats the Source.ts abstract class as a Factory design pattern entry point. The application is able to spawn and run as many sources as it needs to, as long as it&#39;s able to instantiate a child of Source.ts. This allows the application to handle all of the unique URLs and HTTP parsing which each source requires, on an individual basis.</p>
+				<p><img src="https://cdn.discordapp.com/attachments/267036594853249041/723990710247882752/Blank_Diagram.png" alt="Application Diagram"></p>
+				<p>Many of the functions have two parts that are required to be implemented -- the request and the formatting. The request functions are there to give back a properly formatted request. The other part of the function takes the data from the completed request and formats the data to fit the models defined by the function signature.
+				The following sequence diagram shows how the data flows between the application and source. </p>
+				<p><img src="https://cdn.discordapp.com/attachments/267036594853249041/723994905059262484/Blank_Diagram_-_Page_2_1.png" alt="Sequence Diagram"></p>
+				<a href="#updating-a-source" id="updating-a-source" style="color: inherit; text-decoration: none;">
+					<h3>Updating A Source</h3>
+				</a>
+				<p>Updating a source is simple. You just need to change the version number every time you change the code in any way. </p>
+				<a href="#source-documentation" id="source-documentation" style="color: inherit; text-decoration: none;">
+					<h3>Source Documentation</h3>
+				</a>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_apiwrapper_.html">&quot;APIWrapper&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_base_madara_.html">&quot;base/<wbr>Madara&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_base_source_.html">&quot;base/<wbr>Source&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_base_index_.html">&quot;base/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_index_.html">&quot;index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_chapter__impl_.html">&quot;models/<wbr>Chapter/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_chapter_index_.html">&quot;models/<wbr>Chapter/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_chapterdetails__impl_.html">&quot;models/<wbr>Chapter<wbr>Details/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_chapterdetails_index_.html">&quot;models/<wbr>Chapter<wbr>Details/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_constants_index_.html">&quot;models/<wbr>Constants/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_homesection__impl_.html">&quot;models/<wbr>Home<wbr>Section/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_homesection_index_.html">&quot;models/<wbr>Home<wbr>Section/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_languages_index_.html">&quot;models/<wbr>Languages/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_manga__impl_.html">&quot;models/<wbr>Manga/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_manga_index_.html">&quot;models/<wbr>Manga/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_mangatile__impl_.html">&quot;models/<wbr>Manga<wbr>Tile/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_mangatile_index_.html">&quot;models/<wbr>Manga<wbr>Tile/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_mangaupdate__impl_.html">&quot;models/<wbr>Manga<wbr>Update/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_mangaupdate_index_.html">&quot;models/<wbr>Manga<wbr>Update/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_pagedresults__impl_.html">&quot;models/<wbr>Paged<wbr>Results/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_pagedresults_index_.html">&quot;models/<wbr>Paged<wbr>Results/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_requestobject__impl_.html">&quot;models/<wbr>Request<wbr>Object/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_requestobject_index_.html">&quot;models/<wbr>Request<wbr>Object/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_searchrequest__impl_.html">&quot;models/<wbr>Search<wbr>Request/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_searchrequest_index_.html">&quot;models/<wbr>Search<wbr>Request/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_sourcetag_index_.html">&quot;models/<wbr>Source<wbr>Tag/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_tagsection__impl_.html">&quot;models/<wbr>Tag<wbr>Section/_<wbr>impl&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_tagsection_index_.html">&quot;models/<wbr>Tag<wbr>Section/index&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_impl_export_.html">&quot;models/impl_<wbr>export&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_models_index_.html">&quot;models/index&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
