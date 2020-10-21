@@ -170,7 +170,6 @@ const generateHomepage = async function () {
     let repositoryDataPath = path.join(basePath, 'repository.json')
     let versioningFilePath  = path.join(basePath, 'bundles/versioning.json')
 
-    var promises = []
 
     // The homepage should only be generated if a repository.json file exist at the root of the repo
     if (fs.existsSync(repositoryDataPath)) {
