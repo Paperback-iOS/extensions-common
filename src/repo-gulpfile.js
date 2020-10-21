@@ -8,6 +8,9 @@ var gulp = require('gulp')
 const path = require('path')
 const fs = require('fs')
 
+// Homepage generation requirement
+const pug = require('pug');
+
 const bundleSources = async function () {
 
     // Yeah, I get this magic number is sketchy, but given that repositories run a gulpfile inside of their node_modules not much can be done
@@ -153,6 +156,71 @@ const generateVersioningFile = async function () {
     )
 }
 
+
+const generateHomepage = async function () {
+    /* 
+     * If a repository.json is defined at the root of the repository, this function generate a homepage for the repository.
+     * It will be based on repository.json and versioning.json data and homepage.pug file.
+     * 
+     * See homepage.pug for more information on how to create repository.json file
+     */
+
+    //joining path of directory
+    let basePath = process.cwd().substr(0, process.cwd().length - 44)
+    let repositoryDataPath = path.join(basePath, 'repository.json')
+    let versioningFilePath  = path.join(basePath, 'bundles/versioning.json')
+
+    const directoryPath = path.join(basePath, 'src')
+    var promises = []
+
+    // The homepage should only be generated if a repository.json file exist at the root of the repo
+    if (fs.existsSync(repositoryDataPath)) {
+        
+        console.log("Generation of the repository homepage")
+
+        // We need data from repository.json and versioning.json created previously
+        repositoryData = JSON.parse(fs.readFileSync(repositoryDataPath, 'utf8'))
+        extensionsData = JSON.parse(fs.readFileSync(versioningFilePath, 'utf8'))
+
+        // Creation of the list of available extensions
+        // [{name: sourceName, tags[]: []}]
+        extensionList = []
+
+        extensionsData.sources.forEach(extension => {
+            extensionList.push(
+                {
+                    "name": extension.name,
+                    "tags": extension.tags
+                }
+            )
+        })
+
+        repositoryData["sources"] = extensionList
+
+        // repositoryData is then of the form
+        /*
+            {
+                "repositoryName": "",
+                "repositoryDescription": "",
+                "repositoryLogo": "url",
+                "baseURL": "https://yourlinkhere",
+                "sources": [{name: sourceName, tags[]: []}]
+            }
+        */
+
+        // Compilation of the pug file, that should exist in the local directory
+        const htmlCode = pug.compileFile('homepage.pug')(
+            repositoryData
+        )
+
+        fs.writeFileSync(
+            path.join(basePath, 'bundles', 'index.html'),
+            htmlCode
+        )
+    }
+}
+
+
 const deleteFolderRecursive = function (folderPath) {
     folderPath = folderPath.trim()
     if (folderPath.length == 0 || folderPath === '/') return
@@ -201,4 +269,4 @@ const copyFolderRecursive = function (source, target) {
 }
 
 // exports.bundle = bundleSources
-exports.bundle = gulp.series(bundleSources, generateVersioningFile)
+exports.bundle = gulp.series(bundleSources, generateVersioningFile, generateHomepage)
