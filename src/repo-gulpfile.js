@@ -14,7 +14,7 @@ const pug = require('pug');
 const bundleSources = async function () {
 
     // Yeah, I get this magic number is sketchy, but given that repositories run a gulpfile inside of their node_modules not much can be done
-    // I can guarintee that this number will always be constant though
+    // I can guarantee that this number will always be constant though
     // as it substrings out node_modules/paperback-extensions-common/src
     let basePath = process.cwd().substr(0, process.cwd().length - 44)
     const directoryPath = path.join(basePath, 'src')
