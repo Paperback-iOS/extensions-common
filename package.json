@@ -16,6 +16,7 @@
     "browserify": "^17.0.0",
     "cheerio": "^1.0.0-rc.3",
     "gulp": "^4.0.2",
+    "pug": "^3.0.0",
     "tsify": "^5.0.2",
     "typescript": "^3.9.7",
     "vinyl-source-stream": "^2.0.0"
