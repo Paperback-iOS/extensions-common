@@ -208,8 +208,8 @@ const generateHomepage = async function () {
             }
         */
 
-        // Compilation of the pug file, that should exist in the local directory
-        const htmlCode = pug.compileFile('homepage.pug')(
+        // Compilation of the pug file which is available in website-generation folder
+        const htmlCode = pug.compileFile(path.join('website-generation', 'homepage.pug'))(
             repositoryData
         )
 
