@@ -10,6 +10,7 @@ import { ChapterDetails } from './models/ChapterDetails'
 import { SearchRequest } from './models/SearchRequest'
 import { Request } from './models/RequestObject'
 import { MangaTile } from './models/MangaTile'
+import { MangaUpdates } from '.'
 
 // import axios from 'axios'  <- use this when you've fixed the typings
 const axios = require('axios')
@@ -146,12 +147,12 @@ export class APIWrapper {
      * @returns List of the ids of the manga that were recently updated
      */
 
-     // TODO: Update method to support new changes
-    async filterUpdatedManga(source: Source, ids: string[], referenceTime: Date): Promise<string[]> {
+    // TODO: Update method to support new changes
+    async filterUpdatedManga(source: Source, ids: string[], referenceTime: Date): Promise<MangaUpdates> {
         let currentPage = 1
         let hasResults = true
         let request = source.filterUpdatedMangaRequest(ids, referenceTime)
-        if (request == null) return Promise.resolve([])
+        if (request == null) return Promise.resolve(createMangaUpdates({ ids: [] }))
         let url = request.url
         let headers: any = request.headers == undefined ? {} : request.headers
         headers['Cookie'] = this.formatCookie(request)
@@ -159,25 +160,43 @@ export class APIWrapper {
 
         let retries = 0
         do {
-            var data = await this.makeFilterRequest(url, request, headers, currentPage)
+            var data = await this.makeFilterRequest(request)
             if (data.code || data.code == 'ECONNABORTED') retries++
             else if (!data.data) {
-                return []
+                return createMangaUpdates({ ids: [] })
             }
         } while (data.code && retries < 5)
 
         let manga: string[] = []
         while (hasResults && data.data) {
-            let results: any = source.filterUpdatedManga(data.data, request.metadata)
-            manga = manga.concat(results.updatedMangaIds)
+            let results: MangaUpdates | null = source.filterUpdatedManga(data.data, request.metadata)
+
+            if (results === null) {
+                return createMangaUpdates({ ids: manga })
+            }
+
+            manga = manga.concat(results.ids)
             if (results.nextPage) {
                 currentPage++
                 let retries = 0
                 do {
-                    data = await this.makeFilterRequest(url, request, headers, currentPage)
+
+                    // Create a request object for the next page
+                    var nextRequest = createRequestObject({
+                        url: `${results.nextPage.url}`,
+                        method: results.nextPage.method,
+                        metadata: results.nextPage.metadata,
+                        headers: results.nextPage.headers,
+                        data: results.nextPage.data,
+                        param: results.nextPage.param,
+                        cookies: results.nextPage.cookies,
+                        incognito: results.nextPage.incognito
+                    })
+
+                    data = await this.makeFilterRequest(nextRequest)
                     if (data.code || data.code == 'ECONNABORTED') retries++
                     else if (!data.data) {
-                        return manga
+                        createMangaUpdates({ ids: manga })
                     }
                 } while (data.code && retries < 5)
             } else {
@@ -185,33 +204,47 @@ export class APIWrapper {
             }
         }
 
-        return manga
+        return createMangaUpdates({ ids: manga })
     }
 
     // In the case that a source takes too long (LOOKING AT YOU MANGASEE)
     // we will retry after a 4 second timeout. During testings, some requests would take up to 30 s for no reason
     // this brings that edge case way down while still getting data
-    private async makeFilterRequest(baseUrl: string, request: Request, headers: Record<string, string>, currentPage: number): Promise<any> {
-        let post: boolean = request.method.toLowerCase() == 'post' ? true : false
-        try {
-            if (!post) {
-                request.url = currentPage == 1 ? baseUrl : baseUrl + currentPage
-            } else {
-                // axios has a hard time with properly encoding the payload
-                // this took me too long to find
-                request.data = request.data.replace(/(.*page=)(\d*)(.*)/g, `$1${currentPage}$3`)
-            }
+    // NOTE: This method has been replaced with the version below, since I have no friggin idea what Dkzver did this 
+    // weird post logic for. A more simple version has been supplied in the new version, since page number isn't a thing anymore
 
-            var data = await axios.request({
-                url: `${request.url}`,
-                method: request.method,
-                headers: headers,
-                data: request.data,
-                timeout: request.timeout || 0
-            })
-        } catch (e) {
-            return e
-        }
+    // private async makeFilterRequest(baseUrl: string, request: Request, headers: Record<string, string>, currentPage: number): Promise<any> {
+    //     let post: boolean = request.method.toLowerCase() == 'post' ? true : false
+    //     try {
+    //         if (!post) {
+    //             request.url = currentPage == 1 ? baseUrl : baseUrl + currentPage
+    //         } else {
+    //             // axios has a hard time with properly encoding the payload
+    //             // this took me too long to find
+    //             request.data = request.data.replace(/(.*page=)(\d*)(.*)/g, `$1${currentPage}$3`)
+    //         }
+
+    //         var data = await axios.request({
+    //             url: `${request.url}`,
+    //             method: request.method,
+    //             headers: headers,
+    //             data: request.data,
+    //             timeout: request.timeout || 0
+    //         })
+    //     } catch (e) {
+    //         return e
+    //     }
+    //     return data
+    // }
+
+    private async makeFilterRequest(request: Request): Promise<any> {
+        var data = await axios.request({
+            url: `${request.url}`,
+            method: request.method,
+            headers: request.headers,
+            data: request.data,
+            timeout: request.timeout || 0
+        })
         return data
     }
 
@@ -303,7 +336,7 @@ export class APIWrapper {
     }
 
     // TODO: update this to return a promise of PagedResults
-    async getViewMoreItems(source: Source, key: string, page: number) { 
+    async getViewMoreItems(source: Source, key: string, page: number) {
         // let request = source.getViewMoreRequest(key)
         // if (request == null) return Promise.resolve([])
         // let headers: any = request.headers == undefined ? {} : request.headers
