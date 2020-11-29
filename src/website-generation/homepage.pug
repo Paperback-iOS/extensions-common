@@ -1,6 +1,7 @@
 //-
     This file generates a homepage for the extensions repository. 
     It is intended to be processed by the gulp file of the repository.
+
     It needs the following variables:
     {
         "repositoryName": "Comic Repo",
@@ -8,9 +9,11 @@
         "baseURL": "https://yourlinkhere",
         "sources": [{name: sourceName, tags[]: []}]
     }
-    An optional repositoryLogo variable can be provided
+
+    Two optional variables can be provided:
     {
         "repositoryLogo": "https://paperback.moe/icons/logo-alt.svg",
+        "noAddToPaperbackButton": true,
     }
 
     The page contains a noindex meta tag.
@@ -37,20 +40,26 @@ html(lang='en')
             img(src=repositoryLogo, alt="Repository logo").icon
             h1= repositoryName
             p.pageDescription A Paperback extensions repository
+            //- If the repository don't prevent its installation, render an "Add to Paperback" button
+            unless noAddToPaperbackButton
+                //- Generate the escaped URL allowing the app to install the repository
+                a.addToPaperbackButton(href="paperback://addRepo?displayName=" + encodeURIComponent(repositoryName) + "&url=" + encodeURIComponent(baseURL)) Add to Paperback
         div.content
             p#repositoryDescription= repositoryDescription
             blockquote
                 p A guide is available to learn everything about extensions repositories.
                 p Check it <a href="https://paperback.moe/help/guides/adding-repos/">here</a> to learn how to add and use this repository in Paperback.
-            blockquote
-                p 
-                    span On a Paperback installed device, press 
-                    //- Generate the URL allowing the app to install the repo, variables does not need to be escaped
-                    a(href="paperback://addRepo?displayName=" + repositoryName + "&url=" + baseURL) Add to Paperback
-                    span  to add this repository to the app.
-            div.baseUrl
-                p.title Base URL:
-                p= baseURL
+            //- If the repository don't prevent its installation, render help information and base URL component
+            unless noAddToPaperbackButton
+                blockquote
+                    p 
+                        span On a Paperback installed device, press 
+                        //- Generate the escaped URL allowing the app to install the repository
+                        a(href="paperback://addRepo?displayName=" + encodeURIComponent(repositoryName) + "&url=" + encodeURIComponent(baseURL)) Add to Paperback
+                        span  or use the base URL to add this repository to the app.
+                div.baseUrl
+                    p.title Base URL:
+                    p= baseURL
             dev.availableSources
                 p.title Available Sources:
                 div#listDiv
@@ -98,6 +107,24 @@ style.
         line-height: 1.3;
         color: #6a8bad;
         margin: 1rem auto;
+    }
+    .addToPaperbackButton
+    {
+        display: inline-block;
+        width: 10rem;
+        line-height: 1.7;
+        margin: .25rem;
+        padding: .4rem;
+        color: #fff;
+        background-color: #2e84bf;
+        border-bottom: 1px solid #2977ac;
+        border-radius: 4px;
+        transition: background-color .1s ease;
+    }
+    .addToPaperbackButton:hover
+    {
+        background-color: #3992cf;
+        text-decoration: none;
     }
 
 
