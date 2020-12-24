@@ -178,7 +178,7 @@ export abstract class Source {
    * @param time This function should find all manga which has been updated between the current time, and this parameter's reported time.
    *             After this time has been passed, the system should stop parsing and return 
    */
-  filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date): Promise<void> {return Promise.resolve() }
+  filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> {return Promise.resolve() }
 
   /**
    * (OPTIONAL METHOD) A function which should get all of the available homepage sections for a given source, and return a {@link HomeSection} object.
