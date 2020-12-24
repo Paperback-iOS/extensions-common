@@ -32,7 +32,7 @@ export class APIWrapper {
             updateList.push(updates)
         }
 
-        Promise.all([source.filterUpdatedManga(callbackFunc, time, ids)])
+        await source.filterUpdatedManga(callbackFunc, time, ids)
 
         return updateList
     }
@@ -45,10 +45,9 @@ export class APIWrapper {
             sections.push(section)
         }
 
-        Promise.all([source.getHomePageSections(callbackFunc)])
+        await source.getHomePageSections(callbackFunc)
 
         return sections
-
     }
 
     async getViewMoreItems(source: Source, homepageSectionId: string, metadata: any): Promise<PagedResults | null> {
