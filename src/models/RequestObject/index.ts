@@ -1,3 +1,5 @@
+import {Response as PaperbackResponse} from "../ResponseObject"
+
 export interface Request {
   /**
    * The URL which this HTTP request should be delivered to
@@ -65,6 +67,6 @@ export interface Cookie {
 }
 
 declare global {
-  function createRequestObject(requestObject: Request): {request: Request, perform: () => Promise<Response>}
+  function createRequestObject(requestObject: Request): {request: Request, perform: () => Promise<PaperbackResponse>}
   function createCookie(cookie: Cookie): Cookie
 }
