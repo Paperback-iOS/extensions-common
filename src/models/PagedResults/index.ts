@@ -3,7 +3,7 @@ import { Request } from "..";
 
 export interface PagedResults {
     results: MangaTile[]
-    nextPage?: Request
+    metadata?: any
 }
 
 declare global {
