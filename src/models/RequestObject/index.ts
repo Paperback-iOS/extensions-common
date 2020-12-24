@@ -60,7 +60,7 @@ export interface Request {
 
 export interface RequestObject {
   request: Request,
-  perform: () => Promise<Response>
+  perform: () => Promise<PaperbackResponse>
 }
 
 export interface Cookie {
