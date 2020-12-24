@@ -48,6 +48,11 @@ export interface Request {
    * A toggle for if this request should be made in incognito mode or not
    */
   incognito?: boolean
+
+  /**
+   * A custom useragent which can be defined for the HTTP request
+   */
+  useragent?: string
 }
 
 export interface Cookie {
@@ -60,6 +65,6 @@ export interface Cookie {
 }
 
 declare global {
-  function createRequestObject(requestObject: Request): Request
+  function createRequestObject(requestObject: Request): {request: Request, perform: () => Promise<Response>}
   function createCookie(cookie: Cookie): Cookie
 }

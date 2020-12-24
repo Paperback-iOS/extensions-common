@@ -10,8 +10,6 @@ import {
   Request,
   Chapter,
   ChapterDetails,
-  MangaTile,
-  HomeSectionRequest,
   TagSection,
   SourceTag,
   MangaUpdates
@@ -25,7 +23,6 @@ export abstract class Source {
   }
 
   // <-----------        REQUIRED METHODS        -----------> //
-
 
   // Returns the version of the source
   // Ensures that the app is using the most up to date version
@@ -95,88 +92,64 @@ export abstract class Source {
   abstract get websiteBaseURL(): string
 
   /**
-   * A function returning a request for manga information on a list of multiple mangas.
-   * The end-goal of this function set is to populate a list of {@link Manga} objects
-   * so be sure you are targeting a URL which can be parsed to pull the required information
-   * @param ids An array of Manga-IDs (title, internal ids, whatever your source uses) which are to be searched for 
-   * @returns An array of {@link Request} where each Request is able to give information on one of the input ids
+   * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
+   * to grab and populate a {@link Manga} object
+   * @param mangaId The ID which this function is expected to grab data for
    */
-  abstract getMangaDetailsRequest(ids: string[]): Request[]
+  abstract getMangaDetails(mangaId: string): Promise<Manga>
 
   /**
-   * A function which should handle parsing apart HTML returned from {@link Source.getMangaDetailsRequest}
-   * and generate {@link Manga} objects from it. If the input is an array of data, an array of Manga
-   * should be returned if possible, handling multiple requests.
-   * @param data Your raw HTML which is retrieved from {@link Source.getMangaDetailsRequest}
-   * @param metadata Anything that is passed to {@link Source.getMangaDetailsRequest}'s Request object as
-   * metadata, will be available populating this field as well. 
+   * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
+   * to grab and populate a {@link Chapter} array.
+   * @param mangaId The ID which this function is expected to grab data for
    */
-  abstract getMangaDetails(data: any, metadata: any): Manga[]
+  abstract getChapters(mangaId: string): Promise<Chapter[]>
+
+   /**
+   * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
+   * to grab and populate a {@link ChapterDetails} object
+   * @param mangaId The ID which this function is expected to grab data for
+   */
+  abstract getChapterDetails(mangaId: string): Promise<ChapterDetails>
 
   /**
-   * The end-goal of this function set is using a generated {@link Request} to populate a list of {@link Chapter} objects
-   * so be sure you are targeting a URL which can be parsed to pull the required information
-   * @param mangaId 
+   * Given a search request, this function should scan through the website's search page and 
+   * return relevent {@link MangaTile} objects to the given search parameters.
+   * This function is ONLY expected to return the first page of search results.
+   * If there is more than one page of search results, the {@link PagedResults.metadata}
+   * variable should be filled out with some kind of information pointing to the next page of the search.
+   * @param query A app-filled query which the search request should request from the website.
+   * @param metadata A persistant metadata parameter which can be filled out with any data required between search page sections
    */
-  abstract getChaptersRequest(mangaId: string): Request
-
-  /**
-   * A function which should handle parsing apart HTML returned from {@link Source.getChaptersRequest}
-   * and generate a list of available {@link Chapter} objects
-   * @param data HTML which can be parsed to get information on all of the chapters to a specific manga
-   * @param metadata Anything that is passed to {@link Source.getMangaDetailsRequest}'s Request object as
-   * metadata, will be available populating this field as well. 
-   */
-  abstract getChapters(data: any, metadata: any): Chapter[]
-
-  // Get all pages for a particular chapter
-  /**
-   * The end-goal of this function set is using a generated {@link Request} to populate a
-   * {@link ChapterDetails} object for a targeted chapter. Specifically this is the method
-   * which will provide access to all of the pages in a chapter
-   * @param chapId The chapter number which should be polled for a given mangaId
-   * @param mangaId The Manga ID which is targeted
-   */
-  abstract getChapterDetailsRequest(mangaId: string, chapId: string): Request
-
-  /**
-   * A function which should handle parsing apart HTML returned from {@link Source.getChapterDetailsRequest} 
-   * and generate a {@link ChapterDetails} object
-   * @param data HTML which can be parsed to get information on a chapter
-   * @param metadata Anything that is passed to {@link Source.getChapterDetailsRequest}'s Request object as
-   * metadata, will be available populating this field as well. 
-   * NextPage will tell us whether or not the source is paged. Some sources will only allow one page at a time
-   * so this allows us to get around that. 
-   * The param will only utilized if nextPage is true. The param is what is attached to the base url. This allows
-   * us to change the page in url in the http request
-   */
-  abstract getChapterDetails(data: any, metadata: any): ChapterDetails
-
-  /**
-   * Using a {@link SearchRequest}, this method should generate a HTML request which will yield in a page 
-   * displaying manga which matches all of the possible search information. 
-   * Note that your {@link SearchRequest} object does not need to be filled out completely,
-   * as not all manga supports all of the interface fields. Simply try to make your search
-   * as functional as possible. Nullable fields are allowed to be ignored
-   * @param query a filled out {@link SearchRequest} which should be made to a source
-   * @param page It is likely that your search will have more than one page. This paramter determines which page
-   * of the search results is being requested
-   */
-  abstract searchRequest(query: SearchRequest): Request | null
-
-  /**
-   * A function which should handle parsing apart HTML returned from {@link Source.getChapterDetailsRequest}
-   * and generate a list of {@link MangaTile} objects, one for each result on this page
-   * @param data HTML which can be parsed to get a list of all manga matching your search query
-   */
-  abstract search(data: any, metadata: any): PagedResults | null
+  abstract searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults>
 
   // <-----------        OPTIONAL METHODS        -----------> //
 
+  /**
+   * (OPTIONAL METHOD) This function is called when ANY request is made by the Paperback Application out to the internet.
+   * By modifying the parameter and returning it, the user can inject any additional headers, cookies, or anything else
+   * a source may need to load correctly.
+   * The most common use of this function is to add headers to image requests, since you cannot directly access these requests through
+   * the source implementation itself.
+   * 
+   * NOTE: This does **NOT** influence any requests defined in the source implementation. This function will only influence requests
+   * which happen behind the scenes and are not defined in your source.
+   * @param request Any request which Paperback is sending out
+   */
   requestModifier(request: Request): Request { return request }
 
+  /**
+   * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
+   * @param mangaId 
+   */
   getMangaShareUrl(mangaId: string): string | null { return null }
 
+  /**
+   * If a source is secured by Cloudflare, this method should be filled out.
+   * By returning a request to the website, this source will attempt to create a session
+   * so that the source can load correctly.
+   * Usually the {@link Request} url can simply be the base URL to the source.
+   */
   getCloudflareBypassRequest(): Request | null { return null }
 
   /**
@@ -184,82 +157,61 @@ export abstract class Source {
    * This is to avoid IP bans from many of the sources
    * Can be adjusted per source since different sites have different limits
    */
-  get rateLimit(): Number { return 2 }
+  get rateLimit(): Number { return 2.5 }
 
   /**
-   * (OPTIONAL METHOD) Different sources have different tags available for searching. This method
-   * should target a URL which allows you to parse apart all of the available tags which a website has.
-   * This will populate tags in the iOS application where the user can use
-   * @returns A request object which can provide HTML for determining tags that a source uses
+   * (OPTIONAL METHOD) A function which communicates with a given source, and returns a list of all possible tags which the source supports.
+   * These tags are generic and depend on the source. They could be genres such as 'Isekai, Action, Drama', or they can be 
+   * listings such as 'Completed, Ongoing'
+   * These tags must be tags which can be used in the {@link searchRequest} function to augment the searching capability of the application
    */
-  getTagsRequest(): Request | null { return null }
+  getTags(): Promise<TagSection[] | null> { return Promise.resolve(null) }
 
   /**
-   * (OPTIONAL METHOD) A function which should handle parsing apart HTML returned from {@link Source.getTags}
-   * and generate a list of {@link TagSection} objects, determining what sections of tags an app has, as well as
-   * what tags are associated with each section
-   * @param data HTML which can be parsed to get tag information
+   * (OPTIONAL METHOD) A function which should scan through the latest updates section of a website, and report back with a list of IDs which have been
+   * updated BEFORE the supplied timeframe. 
+   * This function may have to scan through multiple pages in order to discover the full list of updated manga. 
+   * Because of this, each batch of IDs should be returned with the mangaUpdatesFoundCallback. The IDs which have been reported for
+   * one page, should not be reported again on another page, unless the relevent ID has been detected again. You do not want to persist
+   * this internal list between {@link Request} calls
+   * @param mangaUpdatesFoundCallback A callback which is used to report a list of manga IDs back to the API
+   * @param time This function should find all manga which has been updated between the current time, and this parameter's reported time.
+   *             After this time has been passed, the system should stop parsing and return 
    */
-  getTags(data: any): TagSection[] | null { return null }
+  filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date): Promise<void> {return Promise.resolve() }
 
   /**
-   * (OPTIONAL METHOD) A function which should handle generating a request for determining whether or 
-   * not a manga has been updated since a specific reference time.
-   * This method is different depending on the source. A current implementation for a source, as example,
-   * is going through multiple pages of the 'latest' section, and determining whether or not there
-   * are entries available before your supplied date.
-   * @param ids The manga IDs which you are searching for updates on
-   * @param time A {@link Date} marking the point in time you'd like to search up from.
-   * Eg, A date of November 2020, when it is currently December 2020, should return all instances
-   * of the image you are searching for, which has been updated in the last month
-   * @param page A page number parameter may be used if your update scanning requires you to 
-   * traverse multiple pages.
+   * (OPTIONAL METHOD) A function which should get all of the available homepage sections for a given source, and return a {@link HomeSection} object.
+   * The sectionCallback is to be used for each given section on the website. This may include a 'Latest Updates' section, or a 'Hot Manga' section.
+   * It is recommended that before anything else in your source, you first use this sectionCallback and send it {@link HomeSection} objects
+   * which are blank, and have not had any requests done on them just yet. This way, you provide the App with the sections to render on screen,
+   * which then will be populated with each additional sectionCallback method called. This is optional, but recommended.
+   * @param sectionCallback A callback which is run for each independant HomeSection.  
    */
-  filterUpdatedMangaRequest(ids: any, time: Date): Request | null { return null }
+  getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> { return Promise.resolve() }
 
   /**
-   * (OPTIONAL METHOD) A function which should handle parsing apart HTML returned from {@link Source.filterUpdatedMangaRequest}
-   * and generate a list manga which has been updated within the timeframe specified in the request.
-   * @param data HTML which can be parsed to determine whether or not a Manga has been updated or not
-   * @param metadata Anything passed to the {@link Request} object in {@link Source.filterUpdatedMangaRequest}
-   * with the key of metadata will be available to this method here in this parameter
-   * @returns A list of mangaID which has been updated. Also, a nextPage parameter is required. This is a flag
-   * which should be set to true, if you need to traverse to the next page of your search, in order to fully
-   * determine whether or not you've gotten all of the updated manga or not. This will increment
-   * the page number in the {@link Source.filterUpdatedMangaRequest} method and run it again with the new
-   * parameter
+   * (OPTIONAL METHOD) This function will take a given homepageSectionId and metadata value, and with this information, should return
+   * all of the manga tiles supplied for the given state of parameters. Most commonly, the metadata value will contain some sort of page information,
+   * and this request will target the given page. (Incrementing the page in the response so that the next call will return relevent data)
+   * @param homepageSectionId The given ID to the homepage defined in {@link getHomePageSections} which this method is to get more data about 
+   * @param metadata This is a metadata parameter which is filled our in the {@link getHomePageSections}'s return
+   * function. Afterwards, if the metadata value returned in the {@link PagedResults} has been modified, the modified version
+   * will be supplied to this function instead of the origional {@link getHomePageSections}'s version. 
+   * This is useful for keeping track of which page a user is on, pagnating to other pages as ViewMore is called multiple times.
    */
-  filterUpdatedManga(data: any, metadata: any): MangaUpdates | null { return null }
+  getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults | null> { return Promise.resolve(null) }
 
   /**
-   * (OPTIONAL METHOD) A function which should generate a {@link HomeSectionRequest} with the intention
-   * of parsing apart a home page of a source, and grouping content into multiple categories.
-   * This does not exist for all sources, but sections you would commonly see would be
-   * 'Latest Manga', 'Hot Manga', 'Recommended Manga', etc.
-   * @returns A list of {@link HomeSectionRequest} objects. A request for search section on the home page. 
-   * It is likely that your request object will be the same in all of them.
+   * (OPTIONAL METHOD) This function is to return the entire library of a manga website, page by page.
+   * If there is an additional page which needs to be called, the {@link PagedResults} value should have it's metadata filled out
+   * with information needed to continue pulling information from this website. 
+   * Note that if the metadata value of {@link PagedResults} is undefined, this method will not continue to run when the user
+   * attempts to get more information
+   * @param metadata Identifying information as to what the source needs to call in order to get the next batch of data
+   * of the directory. Usually this is a page counter.
    */
-  getHomePageSectionRequest(): HomeSectionRequest[] | null { return null }
-
-  /**
-   * (OPTIONAL METHOD) A function which should handle parsing apart HTML returned from {@link Source.getHomePageSectionRequest}
-   * and finish filling out the {@link HomeSection} objects. 
-   * Generally this simply should update the parameter objects with all of the correct contents, and 
-   * return the completed array
-   * @param data The HTML which should be parsed into the {@link HomeSection} objects. There may only be one element in the array, that is okay
-   * if only one section exists
-   * @param section The list of HomeSection objects which are unfinished, and need filled out
-   */
-  getHomePageSections(data: any, section: HomeSection[]): HomeSection[] | null { return null }
-
-  /**
-   * (OPTIONAL METHOD) A function which should handle parsing apart a page
-   * and generate different {@link MangaTile} objects which can be found on it
-   * @param data HTML which should be parsed into a {@link MangaTile} object
-   * @param key 
-   */
-  getViewMoreItems(data: any, key: string, metadata: any): PagedResults | null { return null } 
-
+  getWebsiteMangaDirectory(metadata: any): Promise<PagedResults | null> { return Promise.resolve(null)}
 
 
   // <-----------        PROTECTED METHODS        -----------> //
