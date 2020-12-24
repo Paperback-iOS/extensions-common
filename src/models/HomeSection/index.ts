@@ -1,21 +1,6 @@
 import { Request } from '../RequestObject'
 import { MangaTile } from '../MangaTile'
 
-export interface HomeSectionRequest {
-  /**
-   * A request object which targets a URL which different sections on the source home page
-   * can be parsed from.
-   */
-  request: Request
-
-  /**
-   * A list of {@link HomeSections}. You may have more than one of these.
-   * Common examples of HomeSections would be 'Latest Manga', 'Updated Manga',
-   * 'Hot Manga', etc.
-   */
-  sections: HomeSection[]
-}
-
 export interface HomeSection {
   /**
    * An internal identifier of this HomeSection
@@ -41,10 +26,9 @@ export interface HomeSection {
    * when the user tries to scroll further on the HomePage section. This usually means 
    * that it will traverse to another page, and render more information
    */
-  view_more?: Request
+  view_more?: any
 }
 
 declare global {
   function createHomeSection(section: HomeSection): HomeSection
-  function createHomeSectionRequest(homeRequestObject: HomeSectionRequest): HomeSectionRequest
 }

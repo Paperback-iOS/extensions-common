@@ -12,7 +12,8 @@ import {
   ChapterDetails,
   TagSection,
   SourceTag,
-  MangaUpdates
+  MangaUpdates,
+  RequestManager
 } from ".."
 import { PagedResults } from "../models/PagedResults"
 
@@ -23,6 +24,8 @@ export abstract class Source {
   }
 
   // <-----------        REQUIRED METHODS        -----------> //
+
+  abstract readonly defaultRequestManager: RequestManager
 
   // Returns the version of the source
   // Ensures that the app is using the most up to date version
