@@ -10,8 +10,8 @@ export class APIWrapper {
         return source.getChapters(mangaId)
     }
 
-    async getChapterDetails(source: Source, mangaId: string): Promise<ChapterDetails> {
-        return source.getChapterDetails(mangaId)
+    async getChapterDetails(source: Source, mangaId: string, chapterId: string): Promise<ChapterDetails> {
+        return source.getChapterDetails(mangaId, chapterId)
     }
 
     async searchRequest(source: Source, query: SearchRequest, metadata?: any ): Promise<PagedResults> {
