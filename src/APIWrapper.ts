@@ -1,4 +1,5 @@
 import { Chapter, ChapterDetails, HomeSection, Manga, MangaUpdates, PagedResults, SearchRequest, Source, TagSection } from ".";
+import "./models/impl_export"
 
 export class APIWrapper {
 

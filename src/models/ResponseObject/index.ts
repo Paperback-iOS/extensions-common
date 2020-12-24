@@ -3,7 +3,7 @@ export interface Response {
     /**
      * The response which was provided from the server
      */
-    data: any
+    data: string
 
     /**
      * The HTTP status code from the server response
