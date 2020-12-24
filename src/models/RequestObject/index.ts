@@ -55,6 +55,12 @@ export interface Request {
    * A custom useragent which can be defined for the HTTP request
    */
   useragent?: string
+
+}
+
+export interface RequestObject {
+  request: Request,
+  perform: () => Promise<Response>
 }
 
 export interface Cookie {
@@ -67,6 +73,6 @@ export interface Cookie {
 }
 
 declare global {
-  function createRequestObject(requestObject: Request): {request: Request, perform: () => Promise<PaperbackResponse>}
+  function createRequestObject(requestObject: Request): RequestObject
   function createCookie(cookie: Cookie): Cookie
 }

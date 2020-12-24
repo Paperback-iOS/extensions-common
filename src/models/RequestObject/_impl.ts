@@ -1,4 +1,4 @@
-import { Request, Cookie } from '.'
+import { Request, Cookie, RequestObject } from '.'
 import {Response} from '../ResponseObject'
 
 const axios = require('axios')
@@ -7,6 +7,10 @@ const _global = global as any
 
 _global.createCookie = function (cookie: Cookie): Cookie {
     return cookie
+}
+
+_global.createRequestObject = function(request: RequestObject): RequestObject {
+    return request
 }
 
 _global.createRequestObject = function (requestObject: Request): {request: Request, perform: () => Promise<Response>} {
