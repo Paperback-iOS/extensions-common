@@ -22,7 +22,7 @@ export class APIWrapper {
         return source.getTags()
     }
 
-    async filterUpdatedManga(source: Source, time: Date): Promise<MangaUpdates[]> {
+    async filterUpdatedManga(source: Source, time: Date, ids: string[]): Promise<MangaUpdates[]> {
         // This method uses a callback to get multiple batches of updated manga. Aggrigate the data here
         // and return it all at once as a response
 
@@ -31,7 +31,7 @@ export class APIWrapper {
             updateList.push(updates)
         }
 
-        Promise.all([source.filterUpdatedManga(callbackFunc, time)])
+        Promise.all([source.filterUpdatedManga(callbackFunc, time, ids)])
 
         return updateList
     }
