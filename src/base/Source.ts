@@ -110,7 +110,7 @@ export abstract class Source {
    * to grab and populate a {@link ChapterDetails} object
    * @param mangaId The ID which this function is expected to grab data for
    */
-  abstract getChapterDetails(mangaId: string): Promise<ChapterDetails>
+  abstract getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails>
 
   /**
    * Given a search request, this function should scan through the website's search page and 
