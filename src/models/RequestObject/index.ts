@@ -1,3 +1,5 @@
+import { RequestHeaders } from "../RequestHeaders"
+
 export interface Request {
   /**
    * The URL which this HTTP request should be delivered to
@@ -20,18 +22,13 @@ export interface Request {
   /**
    * Any HTTP headers which should be applied to this request
    */
-  headers?: Record<string, string>
+  headers?: RequestHeaders
 
   //TODO: Data documentation may need edited
   /**
    * Data which 
    */
   data?: any
-
-  /**
-   * If the request takes longer than this value to process, it will fail and timeout
-   */
-  timeout?: number
 
   /**
    * Formatted parameters which are to be associated to the end of the URL.
@@ -48,12 +45,6 @@ export interface Request {
    * A toggle for if this request should be made in incognito mode or not
    */
   incognito?: boolean
-
-  /**
-   * A custom useragent which can be defined for the HTTP request
-   */
-  useragent?: string
-
 }
 
 export interface Cookie {

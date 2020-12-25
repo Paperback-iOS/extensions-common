@@ -3,6 +3,10 @@ import { Response } from "../ResponseObject"
 
 export interface RequestManagerInfo {
     requestsPerSecond: number
+    
+    /**
+     * The time (in milliseconds) before a request is retried or dropped
+     */
     requestTimeout?: number
 }
 
