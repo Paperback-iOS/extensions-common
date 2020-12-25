@@ -12,17 +12,22 @@ import {
   ChapterDetails,
   TagSection,
   SourceTag,
-  MangaUpdates
+  MangaUpdates,
+  RequestManager
 } from ".."
+import { Cookie, RequestHeaders } from "../models"
 import { PagedResults } from "../models/PagedResults"
 
 export abstract class Source {
-  protected cheerio: CheerioAPI
+
+  protected readonly cheerio: CheerioAPI
+
   constructor(cheerio: CheerioAPI) {
     this.cheerio = cheerio
   }
 
   // <-----------        REQUIRED METHODS        -----------> //
+
 
   // Returns the version of the source
   // Ensures that the app is using the most up to date version
@@ -31,13 +36,13 @@ export abstract class Source {
    * This is what the application uses to determine whether it needs to update it's local
    * version of the source, to a new version on the repository
    */
-  abstract get version(): string
+  abstract readonly version: string
 
   /**
    * The title of this source, this is what will show up in the application
    * to identify what Manga location is being targeted
    */
-  abstract get name(): string
+  abstract readonly name: string
 
   /**
    * An INTERNAL reference to an icon which is associated with this source.
@@ -47,49 +52,33 @@ export abstract class Source {
    * This {@link Source.icon} field would then be simply referenced as 'icon.png' and
    * the path will then resolve correctly internally
    */
-  abstract get icon(): string
+  abstract readonly icon: string
 
   /**
    * The author of this source. The string here will be shown off to the public on the application
    * interface, so only write what you're comfortable with showing
    */
-  abstract get author(): string
+  abstract readonly author: string
 
   /**
    * A brief description of what this source targets. This is additional content displayed to the user when 
    * browsing sources. 
    * What website does it target? What features are working? Etc.
    */
-  abstract get description(): string
+  abstract readonly description: string
 
   /**
    * Whether the source is a hentai source. This allows us to make sure that hentai sources do not appear
    * if the user doesn't have hentai enabled
    */
-  abstract get hentaiSource(): boolean
-
-  /**
-   * An optional field where the author may put a link to their website
-   */
-  get authorWebsite(): string | null { return null }
-
-  /**
-   * An optional field that defines the language of the extension's source
-   */
-  get language(): string { return 'all' }
-
-  /**
-   * An optional field of source tags: Little bits of metadata which is rendered on the website
-   * under your repositories section
-   */
-  get sourceTags(): SourceTag[] { return [] }
+  abstract readonly hentaiSource: boolean
 
   /**
    * A required field which points to the source's front-page.
    * Eg. https://mangadex.org
    * This must be a fully qualified URL
    */
-  abstract get websiteBaseURL(): string
+  abstract readonly websiteBaseURL: string
 
   /**
    * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
@@ -125,6 +114,32 @@ export abstract class Source {
 
   // <-----------        OPTIONAL METHODS        -----------> //
 
+
+  /**
+   * An optional field where the author may put a link to their website
+   */
+  readonly authorWebsite: string = ""
+
+  /**
+   * An optional field that defines the language of the extension's source
+   */
+  readonly language: string = "all"
+
+  /**
+   * An optional field of source tags: Little bits of metadata which is rendered on the website
+   * under your repositories section
+   */
+  readonly sourceTags: SourceTag[] = []
+
+  /**
+   * Manages the ratelimits and the number of requests that can be done per second
+   * This is also used to fetch pages when a chapter is downloading
+   */
+  readonly requestManager: RequestManager = createRequestManager({
+    requestsPerSecond: 2.5,
+    requestTimeout: 5000
+  })
+
   /**
    * (OPTIONAL METHOD) This function is called when ANY request is made by the Paperback Application out to the internet.
    * By modifying the parameter and returning it, the user can inject any additional headers, cookies, or anything else
@@ -134,9 +149,9 @@ export abstract class Source {
    * 
    * NOTE: This does **NOT** influence any requests defined in the source implementation. This function will only influence requests
    * which happen behind the scenes and are not defined in your source.
-   * @param request Any request which Paperback is sending out
    */
-  requestModifier(request: Request): Request { return request }
+  globalRequestHeaders(): RequestHeaders { return {} }
+  globalRequestCookies(): Cookie[] { return [] }
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
@@ -151,13 +166,6 @@ export abstract class Source {
    * Usually the {@link Request} url can simply be the base URL to the source.
    */
   getCloudflareBypassRequest(): Request | null { return null }
-
-  /**
-   * Returns the number of calls that can be done per second from the application
-   * This is to avoid IP bans from many of the sources
-   * Can be adjusted per source since different sites have different limits
-   */
-  get rateLimit(): Number { return 2.5 }
 
   /**
    * (OPTIONAL METHOD) A function which communicates with a given source, and returns a list of all possible tags which the source supports.
@@ -181,7 +189,7 @@ export abstract class Source {
   filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> {return Promise.resolve() }
 
   /**
-   * (OPTIONAL METHOD) A function which should get all of the available homepage sections for a given source, and return a {@link HomeSection} object.
+   * (OPTIONAL METHOD) A function which should readonly allf the available homepage sections for a given source, and return a {@link HomeSection} object.
    * The sectionCallback is to be used for each given section on the website. This may include a 'Latest Updates' section, or a 'Hot Manga' section.
    * It is recommended that before anything else in your source, you first use this sectionCallback and send it {@link HomeSection} objects
    * which are blank, and have not had any requests done on them just yet. This way, you provide the App with the sections to render on screen,
@@ -194,7 +202,7 @@ export abstract class Source {
    * (OPTIONAL METHOD) This function will take a given homepageSectionId and metadata value, and with this information, should return
    * all of the manga tiles supplied for the given state of parameters. Most commonly, the metadata value will contain some sort of page information,
    * and this request will target the given page. (Incrementing the page in the response so that the next call will return relevent data)
-   * @param homepageSectionId The given ID to the homepage defined in {@link getHomePageSections} which this method is to get more data about 
+   * @param homepageSectionId The given ID to the homepage defined in {@link getHomePageSections} which this method is to readonly moreata about 
    * @param metadata This is a metadata parameter which is filled our in the {@link getHomePageSections}'s return
    * function. Afterwards, if the metadata value returned in the {@link PagedResults} has been modified, the modified version
    * will be supplied to this function instead of the origional {@link getHomePageSections}'s version. 
@@ -207,8 +215,8 @@ export abstract class Source {
    * If there is an additional page which needs to be called, the {@link PagedResults} value should have it's metadata filled out
    * with information needed to continue pulling information from this website. 
    * Note that if the metadata value of {@link PagedResults} is undefined, this method will not continue to run when the user
-   * attempts to get more information
-   * @param metadata Identifying information as to what the source needs to call in order to get the next batch of data
+   * attempts to readonly morenformation
+   * @param metadata Identifying information as to what the source needs to call in order to readonly theext batch of data
    * of the directory. Usually this is a page counter.
    */
   getWebsiteMangaDirectory(metadata: any): Promise<PagedResults | null> { return Promise.resolve(null)}

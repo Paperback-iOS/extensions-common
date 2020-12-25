@@ -1,5 +1,3 @@
-import {Request} from '..'
-
 export interface MangaUpdates {
     ids: string[]
 }

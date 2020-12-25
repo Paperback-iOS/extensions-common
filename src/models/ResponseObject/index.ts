@@ -1,5 +1,6 @@
-export interface Response {
+import { Request } from "../RequestObject"
 
+export interface Response {
     /**
      * The response which was provided from the server
      */
@@ -11,11 +12,6 @@ export interface Response {
     status: number
 
     /**
-     * The HTTP status message from the server response
-     */
-    statusText: string
-
-    /**
      * The HTTP headers that the server responded with
      * All header names are lower cased and can be accessed
      * using the bracket notation.
@@ -24,14 +20,9 @@ export interface Response {
     headers: any
 
     /**
-     * The configuration which was provided to axios for the request.
-     */
-    config: any
-
-    /**
      * The request which generated this response.
      */
-    request: any
+    request: Request
 }
 
 declare global {
