@@ -9,8 +9,6 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
     return {
         ...info,
         schedule: async function (request: Request, retryCount: number) {
-            let userAgent = request.headers?.userAgent ?? 'Paperback-iOS'
-
             // Append any cookies into the header properly
             let headers: any = request.headers ?? {}
 
@@ -18,10 +16,10 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
             for (let cookie of request.cookies ?? [])
                 cookieData += `${cookie.name}=${cookie.value};`
 
-            headers['Cookie'] = cookieData
+            headers['cookie'] = cookieData
 
             // If no user agent has been supplied, default to a basic Paperback-iOS agent
-            headers['User-Agent'] = `${request.headers?.userAgent ?? 'Paperback-iOS'}`
+            headers['user-agent'] = headers["user-agent"] ?? 'Paperback-iOS'
 
             // We must first get the response object from Axios, and then transcribe it into our own Response type before returning
             let response = await axios({
