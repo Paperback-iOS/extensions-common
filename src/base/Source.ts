@@ -24,7 +24,7 @@ export abstract class Source {
   constructor(cheerio: CheerioAPI) {
     this.cheerio = cheerio
   }
-
+  
   /**
    * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
    * to grab and populate a {@link Manga} object
@@ -58,6 +58,15 @@ export abstract class Source {
   abstract searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults>
 
   // <-----------        OPTIONAL METHODS        -----------> //
+  /**
+   * Manages the ratelimits and the number of requests that can be done per second
+   * This is also used to fetch pages when a chapter is downloading
+   */
+  readonly requestManager: RequestManager = createRequestManager({
+    requestsPerSecond: 2.5,
+    requestTimeout: 5000
+  })
+
   /**
    * Manages the ratelimits and the number of requests that can be done per second
    * This is also used to fetch pages when a chapter is downloading
