@@ -68,15 +68,6 @@ export abstract class Source {
   })
 
   /**
-   * Manages the ratelimits and the number of requests that can be done per second
-   * This is also used to fetch pages when a chapter is downloading
-   */
-  readonly requestManager: RequestManager = createRequestManager({
-    requestsPerSecond: 2.5,
-    requestTimeout: 5000
-  })
-
-  /**
    * (OPTIONAL METHOD) This function is called when ANY request is made by the Paperback Application out to the internet.
    * By modifying the parameter and returning it, the user can inject any additional headers, cookies, or anything else
    * a source may need to load correctly.
