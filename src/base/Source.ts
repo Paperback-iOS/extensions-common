@@ -11,75 +11,20 @@ import {
   Chapter,
   ChapterDetails,
   TagSection,
-  SourceTag,
   MangaUpdates,
-  RequestManager
+  RequestManager,
+  PagedResults,
+  Cookie,
+  RequestHeaders
 } from ".."
-import { Cookie, RequestHeaders } from "../models"
-import { PagedResults } from "../models/PagedResults"
 
 export abstract class Source {
-
   protected readonly cheerio: CheerioAPI
 
   constructor(cheerio: CheerioAPI) {
     this.cheerio = cheerio
   }
-
-  // <-----------        REQUIRED METHODS        -----------> //
-
-
-  // Returns the version of the source
-  // Ensures that the app is using the most up to date version
-  /**
-   * Required class variable which denotes the current version of the application. 
-   * This is what the application uses to determine whether it needs to update it's local
-   * version of the source, to a new version on the repository
-   */
-  abstract readonly version: string
-
-  /**
-   * The title of this source, this is what will show up in the application
-   * to identify what Manga location is being targeted
-   */
-  abstract readonly name: string
-
-  /**
-   * An INTERNAL reference to an icon which is associated with this source.
-   * This Icon should ideally be a matching aspect ratio (a cube)
-   * The location of this should be in an includes directory next to your source.
-   * For example, the MangaPark link sits at: sources/MangaPark/includes/icon.png
-   * This {@link Source.icon} field would then be simply referenced as 'icon.png' and
-   * the path will then resolve correctly internally
-   */
-  abstract readonly icon: string
-
-  /**
-   * The author of this source. The string here will be shown off to the public on the application
-   * interface, so only write what you're comfortable with showing
-   */
-  abstract readonly author: string
-
-  /**
-   * A brief description of what this source targets. This is additional content displayed to the user when 
-   * browsing sources. 
-   * What website does it target? What features are working? Etc.
-   */
-  abstract readonly description: string
-
-  /**
-   * Whether the source is a hentai source. This allows us to make sure that hentai sources do not appear
-   * if the user doesn't have hentai enabled
-   */
-  abstract readonly hentaiSource: boolean
-
-  /**
-   * A required field which points to the source's front-page.
-   * Eg. https://mangadex.org
-   * This must be a fully qualified URL
-   */
-  abstract readonly websiteBaseURL: string
-
+  
   /**
    * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
    * to grab and populate a {@link Manga} object
@@ -94,11 +39,11 @@ export abstract class Source {
    */
   abstract getChapters(mangaId: string): Promise<Chapter[]>
 
-   /**
-   * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
-   * to grab and populate a {@link ChapterDetails} object
-   * @param mangaId The ID which this function is expected to grab data for
-   */
+  /**
+  * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
+  * to grab and populate a {@link ChapterDetails} object
+  * @param mangaId The ID which this function is expected to grab data for
+  */
   abstract getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails>
 
   /**
@@ -113,23 +58,14 @@ export abstract class Source {
   abstract searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults>
 
   // <-----------        OPTIONAL METHODS        -----------> //
-
-
   /**
-   * An optional field where the author may put a link to their website
+   * Manages the ratelimits and the number of requests that can be done per second
+   * This is also used to fetch pages when a chapter is downloading
    */
-  readonly authorWebsite: string = ""
-
-  /**
-   * An optional field that defines the language of the extension's source
-   */
-  readonly language: string = "all"
-
-  /**
-   * An optional field of source tags: Little bits of metadata which is rendered on the website
-   * under your repositories section
-   */
-  readonly sourceTags: SourceTag[] = []
+  readonly requestManager: RequestManager = createRequestManager({
+    requestsPerSecond: 2.5,
+    requestTimeout: 5000
+  })
 
   /**
    * Manages the ratelimits and the number of requests that can be done per second
@@ -186,7 +122,7 @@ export abstract class Source {
    * @param time This function should find all manga which has been updated between the current time, and this parameter's reported time.
    *             After this time has been passed, the system should stop parsing and return 
    */
-  filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> {return Promise.resolve() }
+  filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> { return Promise.resolve() }
 
   /**
    * (OPTIONAL METHOD) A function which should readonly allf the available homepage sections for a given source, and return a {@link HomeSection} object.
@@ -219,7 +155,7 @@ export abstract class Source {
    * @param metadata Identifying information as to what the source needs to call in order to readonly theext batch of data
    * of the directory. Usually this is a page counter.
    */
-  getWebsiteMangaDirectory(metadata: any): Promise<PagedResults | null> { return Promise.resolve(null)}
+  getWebsiteMangaDirectory(metadata: any): Promise<PagedResults | null> { return Promise.resolve(null) }
 
 
   // <-----------        PROTECTED METHODS        -----------> //
