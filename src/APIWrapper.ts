@@ -1,4 +1,4 @@
-import { Chapter, ChapterDetails, HomeSection, Manga, MangaUpdates, PagedResults, SearchRequest, Source, TagSection } from ".";
+import { Chapter, ChapterDetails, HomeSection, Manga, MangaTile, MangaUpdates, PagedResults, SearchRequest, Source, TagSection } from ".";
 import "./models/impl_export"
 
 export class APIWrapper {
@@ -50,8 +50,40 @@ export class APIWrapper {
         return sections
     }
 
-    async getViewMoreItems(source: Source, homepageSectionId: string, metadata: any): Promise<PagedResults | null> {
-        return source.getViewMoreItems(homepageSectionId, metadata)
+    /**
+     * Performs a 'get more' request. Usually this is done when a homesection has it's 'View More' button tapped, and the user 
+     * is starting to scroll through all of the available titles in each section. 
+     * It is recommended that when you write your tests for a source, that you run one test using this function,
+     * for each homepageSectionId that the source offers, if those sections are expected to traverse multiple pages
+     * @param source 
+     * @param homepageSectionId 
+     * @param metadata 
+     * @param resultPageLimiter How many pages this should attempt to iterate through at most. This prevents
+     * you from being in an infinite loop. Defaults to 3.
+     */
+    async getViewMoreItems(source: Source, homepageSectionId: string, metadata: any, resultPageLimiter: number = 3): Promise<MangaTile[] | null> {
+        var results: MangaTile[] = []
+        
+        // This may (and likely will) run multiple times, for multiple pages. Aggrigate up to the page limiter
+        for(let i = 0; i < resultPageLimiter; i++) {
+
+            let sourceResults: PagedResults | null = await source.getViewMoreItems(homepageSectionId, metadata)
+
+            if(sourceResults === null || sourceResults.results.length == 0) {
+                console.error(`getViewMoreItems was asked to run to a maximum of ${resultPageLimiter} pages, but retrieved no results on page ${i}`)
+                return results
+            }
+
+            results = results.concat(sourceResults.results)
+            metadata = sourceResults.metadata
+
+            // If there is no other pages available, meaning the metadata is empty, exit the loop and do not try again
+            if(!sourceResults.metadata) {
+                break
+            }            
+        }
+
+        return results
     }
 
     async getWebsiteMangaDirectory(source: Source, metadata: any): Promise<PagedResults | null> {
