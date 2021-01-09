@@ -16,6 +16,6 @@ export interface TrackObject {
     totalChapters: number
     score: number
     status: number
-    tracking_url: string
+    trackingUrl: string
 
 }

@@ -1,9 +1,9 @@
 export interface OAuth {
-    access_token: string
-    token_type: string
+    accessToken: string
+    tokenType: string
     createdAt: number
     expiresIn: number
-    refresh_token?: string
+    refreshToken?: string
 }
 
 declare global {
