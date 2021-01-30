@@ -2,7 +2,7 @@ import cheerio from 'cheerio'
 import { APIWrapper, Source } from '../..';
 import { TestClass } from './TestClass';
 
-describe('Manga4Life Tests', function () {
+describe('Generic Madara Tests', function () {
 
     var wrapper: APIWrapper = new APIWrapper();
     var source: Source = new TestClass(cheerio);
@@ -78,22 +78,8 @@ describe('Manga4Life Tests', function () {
     })
 
     
-    it("Testing home page results for hot titles", async() => {
-        let results = await wrapper.getViewMoreItems(source, "hot_update", {}, 1)
-
-        expect(results, "No results whatsoever for this section").to.exist
-        expect(results, "No results whatsoever for this section").to.exist
-        
-        let data = results![0]
-        expect(data.id, "No ID present").to.exist
-        expect(data.image, "No image present").to.exist
-        expect(data.title.text, "No title present").to.exist
-    })
-
-    
     it("Testing home page results for latest titles", async() => {
-        let results = await wrapper.getViewMoreItems(source, "latest", {}, 1)
-        let resultsWithPagedData = await wrapper.getViewMoreItems(source, "latest", {}, 3)
+        let results = await wrapper.getViewMoreItems(source, "latest", {}, 3)
 
         expect(results, "No results whatsoever for this section").to.exist
         expect(results, "No results whatsoever for this section").to.exist
@@ -103,19 +89,4 @@ describe('Manga4Life Tests', function () {
         expect(data.image, "No image present").to.exist
         expect(data.title.text, "No title present").to.exist
     })
-
-    
-    it("Testing home page results for new titles", async() => {
-        let results = await wrapper.getViewMoreItems(source, "new_titles", {}, 1)
-        let resultsWithPagedData = await wrapper.getViewMoreItems(source, "new_titles", {}, 3)
-
-        expect(results, "No results whatsoever for this section").to.exist
-        expect(results, "No results whatsoever for this section").to.exist
-        
-        let data = results![0]
-        expect(data.id, "No ID present").to.exist
-        expect(data.image, "No image present").to.exist
-        expect(data.title.text, "No title present").to.exist
-    })
-
 })

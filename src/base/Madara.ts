@@ -1,5 +1,5 @@
 import { Source } from ".";
-import { Manga, Chapter, ChapterDetails, SearchRequest, PagedResults, MangaTile, LanguageCode, Tag, MangaStatus } from "../models";
+import { Manga, Chapter, ChapterDetails, SearchRequest, PagedResults, MangaTile, LanguageCode, Tag, MangaStatus, HomeSection } from "../models";
 
 export abstract class Madara extends Source {
 
@@ -163,7 +163,8 @@ export abstract class Madara extends Source {
         let page = metadata.page ?? 0
         const request = createRequestObject({
             url: `${this.baseUrl}/page/${page}?s=${query.title}&post_type=wp-manga`,
-            method: 'GET'
+            method: 'GET',
+            cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
         })
 
         let data = await this.requestManager.schedule(request, 1)
@@ -211,4 +212,86 @@ export abstract class Madara extends Source {
         })
     }
 
+    /**
+     * It's hard to capture a default logic for homepages. So for madara sources,
+     * instead we've provided a homesection reader for the base_url/webtoons/ endpoint.
+     * This supports having paged views in almost all cases.
+     * @param sectionCallback 
+     */
+    async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> { 
+        let section: HomeSection = createHomeSection({id: "latest", title: "Latest Titles"})
+        sectionCallback(section)
+
+        // Parse all of the available data
+        const request = createRequestObject({
+            url: `${this.baseUrl}/webtoons/?m_orderby=latest`,
+            method: 'GET',
+            cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
+        })
+
+        let data = await this.requestManager.schedule(request, 1)
+        let $ = this.cheerio.load(data.data)
+        let items: MangaTile[] = []
+
+        for(let obj of $('div.manga').toArray()) {
+            let image = $('img', $(obj)).attr('data-src')
+            let title = $('a', $('h3.h5', $(obj))).text()
+            let id = $('a', $('h3.h5', $(obj))).attr('href')?.replace(`${this.baseUrl}/webtoon/`, '').replace('/', '')
+
+            if(!id || !title || !image) {
+                throw(`Failed to parse homepage sections for ${this.baseUrl}/webtoon/`)
+            }
+
+            items.push(createMangaTile({
+                id: id,
+                title: createIconText({text: title}),
+                image: image
+            }))            
+        }
+        
+        section.items = items
+        sectionCallback(section)
+     }
+
+    async getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults | null> {
+        // We only have one homepage section ID, so we don't need to worry about handling that any
+        let page = metadata.page ?? 0   // Default to page 0
+
+        const request = createRequestObject({
+            url: `${this.baseUrl}/webtoons/page/${page}/?m_orderby=latest`,
+            method: 'GET',
+            cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
+        })
+
+        let data = await this.requestManager.schedule(request, 1)
+        let $ = this.cheerio.load(data.data)
+        let items: MangaTile[] = []
+
+        for(let obj of $('div.manga').toArray()) {
+            let image = $('img', $(obj)).attr('data-src')
+            let title = $('a', $('h3.h5', $(obj))).text()
+            let id = $('a', $('h3.h5', $(obj))).attr('href')?.replace(`${this.baseUrl}/read/`, '').replace('/', '')
+
+            if(!id || !title || !image) {
+                throw(`Failed to parse homepage sections for ${this.baseUrl}/webtoon/`)
+            }
+
+            items.push(createMangaTile({
+                id: id,
+                title: createIconText({text: title}),
+                image: image
+            }))            
+        }
+
+        // Set up to go to the next page. If we are on the last page, remove the logic.
+        metadata.page = page + 1
+        if(!$('a.last')) {
+            metadata = undefined
+        }
+
+        return createPagedResults({
+            results: items,
+            metadata: metadata
+        })
+     }
 }
