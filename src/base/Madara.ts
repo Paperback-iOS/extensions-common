@@ -1,19 +1,214 @@
 import { Source } from ".";
-import { Manga, Chapter, ChapterDetails, SearchRequest, PagedResults } from "../models";
+import { Manga, Chapter, ChapterDetails, SearchRequest, PagedResults, MangaTile, LanguageCode, Tag, MangaStatus } from "../models";
 
 export abstract class Madara extends Source {
 
-    getMangaDetails(mangaId: string): Promise<Manga> {
-        throw new Error("Method not implemented.");
+    /**
+     * The base URL of the website. Eg. https://webtoon.xyz
+     */
+    abstract baseUrl: string
+
+    /**
+     * The language code which this source supports
+     */
+    abstract languageCode: LanguageCode
+
+    /**
+     * Some Madara sources have a different selector which is required in order to parse
+     * out the popular manga. This defaults to the most common selector
+     * but can be overridden by other sources which need it.
+     */
+    popularMangaSelector: string = "div.page-item-detail"
+
+    /**
+     * Much like {@link popularMangaSelector} this will default to the most used CheerioJS
+     * selector to extract URLs from popular manga. This is available to be overridden.
+     */
+    popularMangaUrlSelector: string = "div.post-title a"
+
+
+    parseDate(dateString: string): Date {
+        // Primarily we see dates for the format: "1 day ago" or "16 Apr 2020"
+        let dateStringModified = dateString.replace('day', 'days').replace('month', 'months').replace('hour', 'hours')
+        return new Date(this.convertTime(dateStringModified))
     }
-    getChapters(mangaId: string): Promise<Chapter[]> {
-        throw new Error("Method not implemented.");
+
+
+
+    async getMangaDetails(mangaId: string): Promise<Manga> {
+        const request = createRequestObject({
+            url: `${this.baseUrl}/read/${mangaId}`,
+            method: 'GET'
+        })
+
+        let data = await this.requestManager.schedule(request, 1)
+        let $ = this.cheerio.load(data.data)
+
+        let numericId = $('a.wp-manga-action-button').attr('data-post')
+        let title = $('div.post-title h1').first().text().replace(/NEW/, '').replace('\\n', '').trim()
+        let author = $('div.author-content').first().text().replace("\\n", '').trim()
+        let artist = $('div.artist-content').first().text().replace("\\n", '').trim()
+        let summary = $('p', $('div.description-summary')).text()
+        let image = $('div.summary_image img').first().attr('data-src') ?? ''
+        let rating = $('span.total_votes').text().replace('Your Rating', '')
+        let isOngoing = $('div.summary-content').text().toLowerCase().trim() == "ongoing"
+        let genres: Tag[] = []
+
+        for(let obj of $('div.genres-content a').toArray()) {
+            let genre = $(obj).text()
+            genres.push(createTag({label: genre, id: genre}))
+        }
+
+        // If we cannot parse out the data-id for this title, we cannot complete subsequent requests
+        if(!numericId) {
+            throw(`Could not parse out the data-id for ${mangaId} - This method might need overridden in the implementing source`)
+        }
+
+        return createManga({
+            id: numericId,
+            titles: [title],
+            image: image,
+            author: author,
+            artist: artist,
+            desc: summary,
+            status: isOngoing ? MangaStatus.ONGOING : MangaStatus.COMPLETED,
+            rating: Number(rating)
+        })
     }
-    getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
-        throw new Error("Method not implemented.");
+
+    async getChapters(mangaId: string): Promise<Chapter[]> {
+        const request = createRequestObject({
+            url: `${this.baseUrl}/wp-admin/admin-ajax.php`,
+            method: 'POST',
+            headers: {
+                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "referer": this.baseUrl
+            },
+            data: `action=manga_get_chapters&manga=${mangaId}`
+        })
+
+        let data = await this.requestManager.schedule(request, 1)
+        let $ = this.cheerio.load(data.data)
+        let chapters: Chapter[] = []
+
+        // Capture the manga title, as this differs from the ID which this function is fed
+        let realTitle = $('a', $('li.wp-manga-chapter  ').first()).attr('href')?.replace(`${this.baseUrl}/read/`, '').replace(/\/chapter.*/, '')
+
+        if(!realTitle) {
+            throw(`Failed to parse the human-readable title for ${mangaId}`)
+        }
+
+        // For each available chapter..
+        for(let obj of $('li.wp-manga-chapter  ').toArray()) {
+            let id = $('a', $(obj)).first().attr('href')?.replace(`${this.baseUrl}/read/${realTitle}/`, '').replace('/', '')
+            let chapNum = Number($('a', $(obj)).first().text().replace(/\D/g, ''))
+            let releaseDate = $('i', $(obj)).text()
+
+            if(!id) {
+                throw(`Could not parse out ID when getting chapters for ${mangaId}`)
+            }
+
+            chapters.push({
+                id: id,
+                mangaId: realTitle,
+                langCode: this.languageCode,
+                chapNum: chapNum,
+                time: this.parseDate(releaseDate)
+            })
+        }
+
+        return chapters
     }
-    searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults> {
-        throw new Error("Method not implemented.");
+
+    async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
+        const request = createRequestObject({
+            url: `${this.baseUrl}/read/${mangaId}/${chapterId}`,
+            method: 'GET',
+            cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
+        })
+
+        let data = await this.requestManager.schedule(request, 1)
+        let $ = this.cheerio.load(data.data)
+
+        let pages: string[] = []
+
+        for(let obj of $('div.page-break').toArray()) {
+            let page = $('img', $(obj)).attr('data-src')
+
+            if(!page) {
+                throw(`Could not parse page for ${mangaId}/${chapterId}`)
+            }
+
+            pages.push(page.replace(/[\t|\n]/g, ''))
+        }
+
+        return createChapterDetails({
+            id: chapterId,
+            mangaId: mangaId,
+            pages: pages,
+            longStrip: false
+        })
+
+    }
+
+    /**
+     * Different Madara sources might have a slightly different selector which is required to parse out
+     * each manga object while on a search resulst page. This is the selector
+     * which is looped over. This may be overridden if required.
+     */
+    searchMangaSelector: string = "div.c-tabs-item__content"
+
+    async searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults> {
+        // If we're supplied a page that we should be on, set our internal reference to that page. Otherwise, we start from page 0.
+        let page = metadata.page ?? 0
+        const request = createRequestObject({
+            url: `${this.baseUrl}/page/${page}?s=${query.title}&post_type=wp-manga`,
+            method: 'GET'
+        })
+
+        let data = await this.requestManager.schedule(request, 1)
+        let $ = this.cheerio.load(data.data)
+        let results: MangaTile[] = []
+
+        for(let obj of $(this.searchMangaSelector).toArray()) {
+            let id = $('a', $(obj)).attr('href')?.replace(`${this.baseUrl}/read/`, '').replace('/', '')
+            let title = createIconText({text: $('a', $(obj)).attr('title') ?? ''})
+            let image = $('img', $(obj)).attr('data-src')
+
+            if(!id || !title.text || !image) {
+                // Something went wrong with our parsing, return a detailed error
+                throw(`Failed to parse searchResult for ${this.baseUrl} using ${this.searchMangaSelector} as a loop selector`)
+            }
+
+            results.push(createMangaTile({
+                id: id,
+                title: title,
+                image: image
+            }))
+        }
+
+        // Check to see whether we need to navigate to the next page or not
+        if($('div.wp-pagenavi')) {
+            // There ARE multiple pages available, now we must check if we've reached the last or not
+            let pageContext = $('span.pages').text().match(/(\d)/g)
+            
+            if(!pageContext || !pageContext[0] || !pageContext[1]) {
+                throw(`Failed to parse whether this search has more pages or not. This source may need to have it's searchRequest method overridden`)
+            }
+
+            // Because we used the \d regex, we can safely cast each capture to a numeric value
+            if(Number(pageContext[1]) != Number(pageContext[2])) {
+                metadata.page = page + 1
+            }
+            else {
+                metadata.page = undefined
+            }
+        }
+
+        return createPagedResults({
+            results: results,
+            metadata: metadata.page !== undefined ? metadata : undefined
+        })
     }
 
 }
