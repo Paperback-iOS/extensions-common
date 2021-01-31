@@ -9,9 +9,28 @@ export abstract class Madara extends Source {
     abstract baseUrl: string
 
     /**
-     * The language code which this source supports
+     * The language code which this source supports.
      */
     abstract languageCode: LanguageCode
+
+    /**
+     * The path that precedes a manga page not including the base URL.
+     * Eg. for https://www.webtoon.xyz/read/limit-breaker/ it would be 'read'.
+     * Used in all functions.
+     */
+    sourceTraversalPathName: string = 'manga'
+
+    /**
+     * By default, the homepage of a Madara is not its true homepage.
+     * Accessing the site directory and sorting by the latest title allows
+     * functions to step through the multiple pages easier, without a lot of custom
+     * logic for each source.
+     *
+     * This variable holds the latter half of the website path which is required to reach the
+     * directory page.
+     * Eg. 'webtoons' for https://www.webtoon.xyz/webtoons/?m_orderby=latest
+     */
+    homePage: string = 'manga'
 
     /**
      * Some Madara sources have a different selector which is required in order to parse
@@ -37,7 +56,7 @@ export abstract class Madara extends Source {
 
     async getMangaDetails(mangaId: string): Promise<Manga> {
         const request = createRequestObject({
-            url: `${this.baseUrl}/read/${mangaId}`,
+            url: `${this.baseUrl}/${this.sourceTraversalPathName}/${mangaId}`,
             method: 'GET'
         })
 
@@ -92,7 +111,7 @@ export abstract class Madara extends Source {
         let chapters: Chapter[] = []
 
         // Capture the manga title, as this differs from the ID which this function is fed
-        let realTitle = $('a', $('li.wp-manga-chapter  ').first()).attr('href')?.replace(`${this.baseUrl}/read/`, '').replace(/\/chapter.*/, '')
+        let realTitle = $('a', $('li.wp-manga-chapter  ').first()).attr('href')?.replace(`${this.baseUrl}/${this.sourceTraversalPathName}/`, '').replace(/\/chapter.*/, '')
 
         if(!realTitle) {
             throw(`Failed to parse the human-readable title for ${mangaId}`)
@@ -100,7 +119,7 @@ export abstract class Madara extends Source {
 
         // For each available chapter..
         for(let obj of $('li.wp-manga-chapter  ').toArray()) {
-            let id = $('a', $(obj)).first().attr('href')?.replace(`${this.baseUrl}/read/${realTitle}/`, '').replace('/', '')
+            let id = $('a', $(obj)).first().attr('href')?.replace(`${this.baseUrl}/${this.sourceTraversalPathName}/${realTitle}/`, '').replace('/', '')
             let chapNum = Number($('a', $(obj)).first().text().replace(/\D/g, ''))
             let releaseDate = $('i', $(obj)).text()
 
@@ -122,7 +141,7 @@ export abstract class Madara extends Source {
 
     async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
         const request = createRequestObject({
-            url: `${this.baseUrl}/read/${mangaId}/${chapterId}`,
+            url: `${this.baseUrl}/${this.sourceTraversalPathName}/${mangaId}/${chapterId}`,
             method: 'GET',
             cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
         })
@@ -153,7 +172,7 @@ export abstract class Madara extends Source {
 
     /**
      * Different Madara sources might have a slightly different selector which is required to parse out
-     * each manga object while on a search resulst page. This is the selector
+     * each manga object while on a search result page. This is the selector
      * which is looped over. This may be overridden if required.
      */
     searchMangaSelector: string = "div.c-tabs-item__content"
@@ -172,7 +191,7 @@ export abstract class Madara extends Source {
         let results: MangaTile[] = []
 
         for(let obj of $(this.searchMangaSelector).toArray()) {
-            let id = $('a', $(obj)).attr('href')?.replace(`${this.baseUrl}/read/`, '').replace('/', '')
+            let id = $('a', $(obj)).attr('href')?.replace(`${this.baseUrl}/${this.sourceTraversalPathName}/`, '').replace('/', '')
             let title = createIconText({text: $('a', $(obj)).attr('title') ?? ''})
             let image = $('img', $(obj)).attr('data-src')
 
@@ -224,7 +243,7 @@ export abstract class Madara extends Source {
 
         // Parse all of the available data
         const request = createRequestObject({
-            url: `${this.baseUrl}/webtoons/?m_orderby=latest`,
+            url: `${this.baseUrl}/${this.homePage}/?m_orderby=latest`,
             method: 'GET',
             cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
         })
@@ -236,10 +255,10 @@ export abstract class Madara extends Source {
         for(let obj of $('div.manga').toArray()) {
             let image = $('img', $(obj)).attr('data-src')
             let title = $('a', $('h3.h5', $(obj))).text()
-            let id = $('a', $('h3.h5', $(obj))).attr('href')?.replace(`${this.baseUrl}/webtoon/`, '').replace('/', '')
+            let id = $('a', $('h3.h5', $(obj))).attr('href')?.replace(`${this.baseUrl}/${this.sourceTraversalPathName}/`, '').replace('/', '')
 
             if(!id || !title || !image) {
-                throw(`Failed to parse homepage sections for ${this.baseUrl}/webtoon/`)
+                throw(`Failed to parse homepage sections for ${this.baseUrl}/${this.sourceTraversalPathName}/`)
             }
 
             items.push(createMangaTile({
@@ -248,7 +267,7 @@ export abstract class Madara extends Source {
                 image: image
             }))            
         }
-        
+
         section.items = items
         sectionCallback(section)
      }
@@ -258,7 +277,7 @@ export abstract class Madara extends Source {
         let page = metadata.page ?? 0   // Default to page 0
 
         const request = createRequestObject({
-            url: `${this.baseUrl}/webtoons/page/${page}/?m_orderby=latest`,
+            url: `${this.baseUrl}/${this.homePage}/page/${page}/?m_orderby=latest`,
             method: 'GET',
             cookies: [createCookie({name: 'wpmanga-adault', value: "1", domain: this.baseUrl})]
         })
@@ -270,10 +289,10 @@ export abstract class Madara extends Source {
         for(let obj of $('div.manga').toArray()) {
             let image = $('img', $(obj)).attr('data-src')
             let title = $('a', $('h3.h5', $(obj))).text()
-            let id = $('a', $('h3.h5', $(obj))).attr('href')?.replace(`${this.baseUrl}/read/`, '').replace('/', '')
+            let id = $('a', $('h3.h5', $(obj))).attr('href')?.replace(`${this.baseUrl}/${this.sourceTraversalPathName}/`, '').replace('/', '')
 
             if(!id || !title || !image) {
-                throw(`Failed to parse homepage sections for ${this.baseUrl}/webtoon/`)
+                throw(`Failed to parse homepage sections for ${this.baseUrl}/${this.sourceTraversalPathName}`)
             }
 
             items.push(createMangaTile({
