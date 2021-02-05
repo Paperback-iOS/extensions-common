@@ -173,4 +173,17 @@ export abstract class Source {
 
     return time
   }
+
+  /**
+   * When a function requires a POST body, it always should be defined as a JsonObject
+   * and then passed through this function to ensure that it's encoded properly.
+   * @param obj 
+   */
+  protected urlEncodeObject(obj: { [x: string]: any }): any {
+    let ret: any = {}
+    for (const entry of Object.entries(obj)) {
+        ret[encodeURIComponent(entry[0])] = encodeURIComponent(entry[1])
+    }
+    return ret
+  }
 }

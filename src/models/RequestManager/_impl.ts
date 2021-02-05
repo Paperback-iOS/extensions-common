@@ -21,12 +21,24 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
             // If no user agent has been supplied, default to a basic Paperback-iOS agent
             headers['user-agent'] = headers["user-agent"] ?? 'Paperback-iOS'
 
+            // If we are using a urlencoded form data as a post body, we need to decode the request for Axios
+            let decodedData = request.data
+            if(headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+                decodedData = ""
+                for(let attribute in request.data) {
+                    if(decodedData) {
+                        decodedData += "&"
+                    }
+                    decodedData += `${attribute}=${request.data[attribute]}`
+                }
+            }
+
             // We must first get the response object from Axios, and then transcribe it into our own Response type before returning
             let response = await axios({
                 url: `${request.url}${request.param ?? ''}`,
                 method: request.method,
                 headers: headers,
-                data: request.data,
+                data: decodedData,
                 timeout: info.requestTimeout || 0
             })
 
