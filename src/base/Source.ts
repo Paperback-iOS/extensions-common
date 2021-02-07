@@ -15,7 +15,8 @@ import {
   RequestManager,
   PagedResults,
   Cookie,
-  RequestHeaders
+  RequestHeaders,
+  UserForm
 } from ".."
 
 export abstract class Source {
@@ -79,6 +80,20 @@ export abstract class Source {
    */
   globalRequestHeaders(): RequestHeaders { return {} }
   globalRequestCookies(): Cookie[] { return [] }
+
+  /**
+   * A stateful source may require user input. 
+   * By supplying this value to the Source, the app will render your form to the user
+   * in the application settings.
+   */
+  getAppStatefulForm(): UserForm { return createUserForm({formElements: []})}
+
+  /**
+   * When the Advanced Search is rendered to the user, this skeleton defines what
+   * fields which will show up to the user, and returned back to the source
+   * when the request is made.
+   */
+  getAdvancedSearchForm(): UserForm { return createUserForm({formElements: []})}
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
