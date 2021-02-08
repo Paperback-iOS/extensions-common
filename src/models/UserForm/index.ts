@@ -6,6 +6,7 @@ export interface FormObject {
     id: string
     userReadableTitle: string
     type: FormType
+    metadata?: any
     userResponse?: any
 }
 
