@@ -18,6 +18,7 @@ import {
   RequestHeaders,
   UserForm
 } from ".."
+import { SourceStateManager } from "../models/SourceStateManager"
 
 export abstract class Source {
   protected readonly cheerio: CheerioAPI
@@ -67,6 +68,8 @@ export abstract class Source {
     requestsPerSecond: 2.5,
     requestTimeout: 5000
   })
+
+  readonly stateManager: SourceStateManager = createSourceStateManager({})
 
   /**
    * (OPTIONAL METHOD) This function is called when ANY request is made by the Paperback Application out to the internet.
