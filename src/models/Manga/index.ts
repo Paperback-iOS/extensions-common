@@ -23,7 +23,7 @@ export interface Manga {
 	/**
 	 * The rating which users have given this manga
 	 */
-	rating: number
+	rating?: number
 
 	/**
 	 * A status code for this manga. This is likely different each source.
@@ -80,6 +80,9 @@ export interface Manga {
 	 */
 	tags?: TagSection[]
 
+	/**
+	 * Currently unused. Will likely get removed in the future.
+	 */
 	users?: number
 
 	/**
@@ -107,7 +110,8 @@ export interface Manga {
 
 export enum MangaStatus {
 	ONGOING = 1,
-	COMPLETED = 0
+	COMPLETED = 0,
+	UNKNOWN = 2
 }
 
 declare global {
