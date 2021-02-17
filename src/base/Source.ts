@@ -89,14 +89,14 @@ export abstract class Source {
    * By supplying this value to the Source, the app will render your form to the user
    * in the application settings.
    */
-  getAppStatefulForm(): UserForm { return createUserForm({formElements: []})}
+  getAppStatefulForm(): Promise<UserForm> { return Promise.resolve(createUserForm({formElements: []}))}
 
   /**
    * When the Advanced Search is rendered to the user, this skeleton defines what
    * fields which will show up to the user, and returned back to the source
    * when the request is made.
    */
-  getAdvancedSearchForm(): UserForm { return createUserForm({formElements: []})}
+  getAdvancedSearchForm(): Promise<UserForm> { return Promise.resolve(createUserForm({formElements: []}))}
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
