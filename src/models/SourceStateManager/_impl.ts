@@ -7,9 +7,12 @@ _global.createSourceStateManager = function (info: SourceStateManagerInfo): Sour
         ...info,
         store: function (key: string, value: string) {
             // Fill this in so the test classes don't commit sudoku
+            virtualStateStore.key = value
         },
         retrieve: function (key: string) {
-            // See the above
+            return virtualStateStore.key ?? ""
         }
     }
 }
+
+var virtualStateStore: any = {}
