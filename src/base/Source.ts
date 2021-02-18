@@ -81,7 +81,7 @@ export abstract class Source {
    * NOTE: This does **NOT** influence any requests defined in the source implementation. This function will only influence requests
    * which happen behind the scenes and are not defined in your source.
    */
-  globalRequestHeaders(): RequestHeaders { return {} }
+  globalRequestHeaders(): Promise<RequestHeaders> { return Promise.resolve({}) }
   globalRequestCookies(): Cookie[] { return [] }
 
   /**
