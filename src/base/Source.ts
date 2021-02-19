@@ -16,7 +16,8 @@ import {
   PagedResults,
   Cookie,
   RequestHeaders,
-  UserForm
+  UserForm,
+  SourceMenu
 } from ".."
 import { SourceStateManager } from "../models/SourceStateManager"
 
@@ -84,19 +85,24 @@ export abstract class Source {
   globalRequestHeaders(): Promise<RequestHeaders> { return Promise.resolve({}) }
   globalRequestCookies(): Cookie[] { return [] }
 
+  getSourceMenu(): Promise<SourceMenu | null> { return Promise.resolve(null) }
+
   /**
    * A stateful source may require user input. 
    * By supplying this value to the Source, the app will render your form to the user
    * in the application settings.
    */
-  getAppStatefulForm(): Promise<UserForm> { return Promise.resolve(createUserForm({formElements: []}))}
+  getSourceMenuItemForm(itemId: string): Promise<UserForm | null> { return Promise.resolve(null) }
+  getSourceMenuItemLink(itemId: string): Promise<URL | null> { return Promise.resolve(null) }
+
+  submitSourceMenuItemForm(id: string): Promise<void> { return Promise.resolve() }
 
   /**
    * When the Advanced Search is rendered to the user, this skeleton defines what
    * fields which will show up to the user, and returned back to the source
    * when the request is made.
    */
-  getAdvancedSearchForm(): Promise<UserForm> { return Promise.resolve(createUserForm({formElements: []}))}
+  getAdvancedSearchForm(): Promise<UserForm | null> { return Promise.resolve(null) }
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.

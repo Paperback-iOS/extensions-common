@@ -2,25 +2,28 @@ export interface UserForm {
     formElements: FormObject[]
 }
 
-export interface FormObject {
+interface FormObject {
     id: string
-    userReadableTitle: string
-    userResponse?: any
+    label: string
 }
 
-export interface TextFieldObject extends FormObject {
+interface FormValueObject<T> extends FormObject {
+    value: T
+}
+
+export interface TextFieldObject extends FormValueObject<string> {
     placeholderText: string
 }
 
-export interface ToggleFieldObject extends FormObject {
+export interface ToggleFieldObject extends FormValueObject<boolean> {
     // Blank - App consumes this for typing data
 }
 
-export interface PickerFieldObject extends FormObject {
+export interface PickerFieldObject extends FormValueObject<string> {
     values: string[]
 }
 
-export interface ComboFieldObject extends FormObject {
+export interface ComboFieldObject extends FormValueObject<string> {
     values: string[]
 }
 
