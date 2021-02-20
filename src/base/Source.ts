@@ -95,7 +95,7 @@ export abstract class Source {
   getSourceMenuItemForm(itemId: string): Promise<UserForm | null> { return Promise.resolve(null) }
   getSourceMenuItemLink(itemId: string): Promise<URL | null> { return Promise.resolve(null) }
 
-  submitSourceMenuItemForm(id: string): Promise<void> { return Promise.resolve() }
+  submitSourceMenuItemForm(id: string, form: any): Promise<void> { return Promise.resolve() }
 
   /**
    * When the Advanced Search is rendered to the user, this skeleton defines what

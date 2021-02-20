@@ -8,9 +8,10 @@ _global.createSourceStateManager = function (info: SourceStateManagerInfo): Sour
         store: function (key: string, value: string) {
             // Fill this in so the test classes don't commit sudoku
             virtualStateStore[key] = value
+            return Promise.resolve()
         },
         retrieve: function (key: string) {
-            return virtualStateStore[key] ?? ""
+            return Promise.resolve(virtualStateStore[key] ?? "")
         }
     }
 }

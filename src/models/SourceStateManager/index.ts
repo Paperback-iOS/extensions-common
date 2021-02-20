@@ -4,8 +4,8 @@ export interface SourceStateManagerInfo {
 }
 
 export interface SourceStateManager extends SourceStateManagerInfo {
-    store: (key: string, value: any) => void
-    retrieve: (key: string) => any | null
+    store: (key: string, value: any) => Promise<void>
+    retrieve: (key: string) => Promise<any | null>
 }
 
 declare global {

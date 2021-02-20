@@ -2,7 +2,7 @@ export interface UserForm {
     formElements: FormObject[]
 }
 
-interface FormObject {
+export interface FormObject {
     id: string
     label: string
 }
