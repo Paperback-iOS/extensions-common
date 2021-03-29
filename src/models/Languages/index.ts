@@ -14,7 +14,7 @@ export enum LanguageCode {
     FRENCH = 'fr',
     WELSH = 'gb',
     GREEK = 'gr',
-    CHINEESE_HONGKONG = 'hk',
+    CHINESE_HONGKONG = 'hk',
     HUNGARIAN = 'hu',
     INDONESIAN = 'id',
     ISRELI = 'il',
