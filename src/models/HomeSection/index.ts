@@ -15,6 +15,12 @@ export interface HomeSection {
   title: string
 
   /**
+   * Type of the section
+   * Defaults to HomeSectionType.singleRowNormal
+   */
+  type?: HomeSectionType
+
+  /**
    * A list of {@link MangaTile} objects which should be shown under this section
    */
   items?: MangaTile[]
@@ -27,6 +33,13 @@ export interface HomeSection {
    * that it will traverse to another page, and render more information
    */
   view_more?: any
+}
+
+export enum HomeSectionType {
+  singleRowNormal = "singleRowNormal",
+  singleRowLarge = "singleRowLarge",
+  doubleRow = "doubleRow",
+  featured = "featured"
 }
 
 declare global {
