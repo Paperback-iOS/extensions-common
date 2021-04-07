@@ -1,5 +1,6 @@
 import { Request } from "../RequestObject"
 import { Response } from "../ResponseObject"
+import { RequestInterceptor } from "../RequestInterceptor"
 
 export interface RequestManagerInfo {
     requestsPerSecond: number
@@ -8,6 +9,8 @@ export interface RequestManagerInfo {
      * The time (in milliseconds) before a request is retried or dropped
      */
     requestTimeout?: number
+
+    interceptor?: RequestInterceptor
 }
 
 export interface RequestManager extends RequestManagerInfo {
