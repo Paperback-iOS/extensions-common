@@ -1,6 +1,9 @@
+import { RawData } from "../RawData"
 import { Request } from "../RequestObject"
 
 export interface Response {
+    rawData: RawData
+
     /**
      * The response which was provided from the server
      */
@@ -23,8 +26,4 @@ export interface Response {
      * The request which generated this response.
      */
     request: Request
-}
-
-declare global {
-    function createResponseObject(responseObject: Response): Response
 }

@@ -1,11 +1,11 @@
 import { RequestManager, RequestManagerInfo } from "."
 import { Request } from "../RequestObject"
+//@ts-ignore
+import axios, { Method } from 'axios'
 
 const _global = global as any
 
 _global.createRequestManager = function (info: RequestManagerInfo): RequestManager {
-    const axios = require('axios')
-    
     return {
         ...info,
         schedule: async function (request: Request, retryCount: number) {
@@ -34,20 +34,21 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
             }
 
             // We must first get the response object from Axios, and then transcribe it into our own Response type before returning
-            let response = await axios({
-                url: `${request.url}${request.param ?? ''}`,
-                method: request.method,
+            let response = await axios(`${request.url}${request.param ?? ''}`, {
+                method: <Method> request.method,
                 headers: headers,
                 data: decodedData,
-                timeout: info.requestTimeout || 0
+                timeout: info.requestTimeout || 0,
+                responseType: 'arraybuffer'
             })
 
-            return Promise.resolve(createResponseObject({
-                data: response.data,
+            return {
+                rawData: createRawData({bytes: response.data}),
+                data: Buffer.from(response.data, 'binary').toString(),
                 status: response.status,
                 headers: response.headers,
                 request: request
-            }))
+            }
         }
     }
 }
