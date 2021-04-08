@@ -23,13 +23,15 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
 
             // If we are using a urlencoded form data as a post body, we need to decode the request for Axios
             let decodedData = request.data
-            if(headers['content-type']?.includes('application/x-www-form-urlencoded')) {
-                decodedData = ""
-                for(let attribute in request.data) {
-                    if(decodedData) {
-                        decodedData += "&"
-                    }
-                    decodedData += `${attribute}=${request.data[attribute]}`
+            if(typeof decodedData == 'object') {
+                if(headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+                    decodedData = ""
+                    Object.keys(request.data).forEach(attribute => {
+                        if(decodedData.length > 0) {
+                            decodedData += "&"
+                        }
+                        decodedData += `${attribute}=${request.data[attribute]}`
+                    })
                 }
             }
 
@@ -43,7 +45,7 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
             })
 
             return {
-                rawData: createRawData({bytes: response.data}),
+                rawData: createRawData(response.data),
                 data: Buffer.from(response.data, 'binary').toString(),
                 status: response.status,
                 headers: response.headers,
