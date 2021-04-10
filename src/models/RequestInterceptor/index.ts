@@ -1,12 +1,12 @@
 import { Request } from "../RequestObject"
 import { Response } from "../ResponseObject"
 
-export abstract class RequestInterceptor {
+export interface RequestInterceptor {
     /**
      * This method is invoked asynchronously
      * @param request The intercepted request
      */
-    abstract interceptRequest(request: Request): Promise<Request>
+    interceptRequest(request: Request): Promise<Request>
 
     /**
      * While this method can be marked async, you should not
@@ -17,5 +17,5 @@ export abstract class RequestInterceptor {
      * You *cannot* modify anything other than the data in a Response
      * @param response The intercepted response
      */
-    abstract interceptResponse(response: Response): Promise<Response>
+    interceptResponse(response: Response): Promise<Response>
 }

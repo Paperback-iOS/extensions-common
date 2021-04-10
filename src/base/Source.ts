@@ -19,15 +19,16 @@ import {
   UserForm,
   SourceMenu
 } from ".."
-import { SourceStateManager } from "../models/SourceStateManager"
 
-export abstract class Source {
-  protected readonly cheerio: CheerioAPI
+export abstract class SourceInterface {
+  /**
+   * Manages the ratelimits and the number of requests that can be done per second
+   * This is also used to fetch pages when a chapter is downloading
+   */
+  abstract readonly requestManager: RequestManager
 
-  constructor(cheerio: CheerioAPI) {
-    this.cheerio = cheerio
-  }
-  
+  constructor(public cheerio: CheerioAPI) {}
+
   /**
    * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
    * to grab and populate a {@link Manga} object
@@ -62,53 +63,39 @@ export abstract class Source {
 
   // <-----------        OPTIONAL METHODS        -----------> //
   /**
-   * Manages the ratelimits and the number of requests that can be done per second
-   * This is also used to fetch pages when a chapter is downloading
+   * @deprecated Do not use this methods, register an interceptor with RequestManager instead
    */
-  readonly requestManager: RequestManager = createRequestManager({
-    requestsPerSecond: 2.5,
-    requestTimeout: 5000
-  })
-
-  readonly stateManager: SourceStateManager = createSourceStateManager({})
+  globalRequestHeaders?(): RequestHeaders
 
   /**
-   * (OPTIONAL METHOD) This function is called when ANY request is made by the Paperback Application out to the internet.
-   * By modifying the parameter and returning it, the user can inject any additional headers, cookies, or anything else
-   * a source may need to load correctly.
-   * The most common use of this function is to add headers to image requests, since you cannot directly access these requests through
-   * the source implementation itself.
-   * 
-   * NOTE: This does **NOT** influence any requests defined in the source implementation. This function will only influence requests
-   * which happen behind the scenes and are not defined in your source.
+   * @deprecated Do not use this method, register an interceptor with RequestManager instead
    */
-  globalRequestHeaders(): Promise<RequestHeaders> { return Promise.resolve({}) }
-  globalRequestCookies(): Cookie[] { return [] }
+  globalRequestCookies?(): Cookie[]
 
-  getSourceMenu(): Promise<SourceMenu | null> { return Promise.resolve(null) }
+  getSourceMenu?(): Promise<SourceMenu>
 
   /**
    * A stateful source may require user input. 
    * By supplying this value to the Source, the app will render your form to the user
    * in the application settings.
    */
-  getSourceMenuItemForm(itemId: string): Promise<UserForm | null> { return Promise.resolve(null) }
-  getSourceMenuItemLink(itemId: string): Promise<URL | null> { return Promise.resolve(null) }
+  getSourceMenuItemForm?(itemId: string): Promise<UserForm>
+  getSourceMenuItemLink?(itemId: string): Promise<URL>
 
-  submitSourceMenuItemForm(id: string, form: any): Promise<void> { return Promise.resolve() }
+  submitSourceMenuItemForm?(id: string, form: any): Promise<void>
 
   /**
    * When the Advanced Search is rendered to the user, this skeleton defines what
    * fields which will show up to the user, and returned back to the source
    * when the request is made.
    */
-  getAdvancedSearchForm(): Promise<UserForm | null> { return Promise.resolve(null) }
+  getAdvancedSearchForm?(): Promise<UserForm>
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
    * @param mangaId 
    */
-  getMangaShareUrl(mangaId: string): string | null { return null }
+  getMangaShareUrl?(mangaId: string): string
 
   /**
    * If a source is secured by Cloudflare, this method should be filled out.
@@ -116,7 +103,7 @@ export abstract class Source {
    * so that the source can load correctly.
    * Usually the {@link Request} url can simply be the base URL to the source.
    */
-  getCloudflareBypassRequest(): Request | null { return null }
+  getCloudflareBypassRequest?(): Request
 
   /**
    * (OPTIONAL METHOD) A function which communicates with a given source, and returns a list of all possible tags which the source supports.
@@ -124,7 +111,7 @@ export abstract class Source {
    * listings such as 'Completed, Ongoing'
    * These tags must be tags which can be used in the {@link searchRequest} function to augment the searching capability of the application
    */
-  getTags(): Promise<TagSection[] | null> { return Promise.resolve(null) }
+  getTags?(): Promise<TagSection[]>
 
   /**
    * (OPTIONAL METHOD) A function which should scan through the latest updates section of a website, and report back with a list of IDs which have been
@@ -137,7 +124,7 @@ export abstract class Source {
    * @param time This function should find all manga which has been updated between the current time, and this parameter's reported time.
    *             After this time has been passed, the system should stop parsing and return 
    */
-  filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> { return Promise.resolve() }
+  filterUpdatedManga?(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void>
 
   /**
    * (OPTIONAL METHOD) A function which should readonly allf the available homepage sections for a given source, and return a {@link HomeSection} object.
@@ -147,7 +134,7 @@ export abstract class Source {
    * which then will be populated with each additional sectionCallback method called. This is optional, but recommended.
    * @param sectionCallback A callback which is run for each independant HomeSection.  
    */
-  getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> { return Promise.resolve() }
+  getHomePageSections?(sectionCallback: (section: HomeSection) => void): Promise<void>
 
   /**
    * (OPTIONAL METHOD) This function will take a given homepageSectionId and metadata value, and with this information, should return
@@ -159,7 +146,7 @@ export abstract class Source {
    * will be supplied to this function instead of the origional {@link getHomePageSections}'s version. 
    * This is useful for keeping track of which page a user is on, pagnating to other pages as ViewMore is called multiple times.
    */
-  getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults | null> { return Promise.resolve(null) }
+  getViewMoreItems?(homepageSectionId: string, metadata: any): Promise<PagedResults>
 
   /**
    * (OPTIONAL METHOD) This function is to return the entire library of a manga website, page by page.
@@ -170,44 +157,42 @@ export abstract class Source {
    * @param metadata Identifying information as to what the source needs to call in order to readonly theext batch of data
    * of the directory. Usually this is a page counter.
    */
-  getWebsiteMangaDirectory(metadata: any): Promise<PagedResults | null> { return Promise.resolve(null) }
+  getWebsiteMangaDirectory?(metadata: any): Promise<PagedResults>
+}
 
-
-  // <-----------        PROTECTED METHODS        -----------> //
-  // Many sites use '[x] time ago' - Figured it would be good to handle these cases in general
-  protected convertTime(timeAgo: string): Date {
-    let time: Date
-    let trimmed: number = Number((/\d*/.exec(timeAgo) ?? [])[0])
-    trimmed = (trimmed == 0 && timeAgo.includes('a')) ? 1 : trimmed
-    if (timeAgo.includes('minutes')) {
-      time = new Date(Date.now() - trimmed * 60000)
-    }
-    else if (timeAgo.includes('hours')) {
-      time = new Date(Date.now() - trimmed * 3600000)
-    }
-    else if (timeAgo.includes('days')) {
-      time = new Date(Date.now() - trimmed * 86400000)
-    }
-    else if (timeAgo.includes('year') || timeAgo.includes('years')) {
-      time = new Date(Date.now() - trimmed * 31556952000)
-    }
-    else {
-      time = new Date(Date.now())
-    }
-
-    return time
+// Many sites use '[x] time ago' - Figured it would be good to handle these cases in general
+export function convertTime(timeAgo: string): Date {
+  let time: Date
+  let trimmed: number = Number((/\d*/.exec(timeAgo) ?? [])[0])
+  trimmed = (trimmed == 0 && timeAgo.includes('a')) ? 1 : trimmed
+  if (timeAgo.includes('minutes')) {
+    time = new Date(Date.now() - trimmed * 60000)
+  }
+  else if (timeAgo.includes('hours')) {
+    time = new Date(Date.now() - trimmed * 3600000)
+  }
+  else if (timeAgo.includes('days')) {
+    time = new Date(Date.now() - trimmed * 86400000)
+  }
+  else if (timeAgo.includes('year') || timeAgo.includes('years')) {
+    time = new Date(Date.now() - trimmed * 31556952000)
+  }
+  else {
+    time = new Date(Date.now())
   }
 
-  /**
-   * When a function requires a POST body, it always should be defined as a JsonObject
-   * and then passed through this function to ensure that it's encoded properly.
-   * @param obj 
-   */
-  protected urlEncodeObject(obj: { [x: string]: any }): any {
-    let ret: any = {}
-    for (const entry of Object.entries(obj)) {
-        ret[encodeURIComponent(entry[0])] = encodeURIComponent(entry[1])
-    }
-    return ret
+  return time
+}
+
+/**
+ * When a function requires a POST body, it always should be defined as a JsonObject
+ * and then passed through this function to ensure that it's encoded properly.
+ * @param obj 
+ */
+export function urlEncodeObject(obj: { [x: string]: any }): any {
+  let ret: any = {}
+  for (const entry of Object.entries(obj)) {
+      ret[encodeURIComponent(entry[0])] = encodeURIComponent(entry[1])
   }
+  return ret
 }
