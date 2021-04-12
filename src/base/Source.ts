@@ -142,8 +142,8 @@ export abstract class Source {
    * and this request will target the given page. (Incrementing the page in the response so that the next call will return relevent data)
    * @param homepageSectionId The given ID to the homepage defined in {@link getHomePageSections} which this method is to readonly moreata about 
    * @param metadata This is a metadata parameter which is filled our in the {@link getHomePageSections}'s return
-   * function. Afterwards, if the metadata value returned in the {@link PagedResults} has been modified, the modified version
-   * will be supplied to this function instead of the origional {@link getHomePageSections}'s version. 
+   * function. It initially starts out as null. Afterwards, if the metadata value returned in the {@link PagedResults} has been modified,
+   * the modified version will be supplied to this function instead of the origional {@link getHomePageSections}'s version. 
    * This is useful for keeping track of which page a user is on, pagnating to other pages as ViewMore is called multiple times.
    */
   getViewMoreItems?(homepageSectionId: string, metadata: any): Promise<PagedResults>
