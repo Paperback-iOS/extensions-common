@@ -40,10 +40,15 @@ export interface SourceInfo {
     readonly description: string
 
     /**
-     * Whether the source is a hentai source. This allows us to make sure that hentai sources do not appear
-     * if the user doesn't have hentai enabled
+     * A content rating attributed to each source. This can be one of three values, and should be set appropriately.
+     * Everyone: This source does not have any sort of adult content available. Each title within is assumed safe for all audiences
+     * Mature: This source MAY have mature content inside of it. Even if most content is safe, mature should be selected even if a small subset applies
+     * Adult: This source probably has straight up pornography available. 
+     * 
+     * This rating helps us filter your source to users who have the necessary visibility rules toggled for their profile.
+     * Naturally, only 'Everyone' sources will show up for users without an account, or without any mode toggles changed.
      */
-    readonly hentaiSource: boolean
+    readonly contentRating: ContentRating
 
     /**
      * A required field which points to the source's front-page.
@@ -68,4 +73,13 @@ export interface SourceInfo {
      */
     readonly sourceTags?: SourceTag[]
 
+}
+
+/**
+ * A content rating to be attributed to each source. 
+ */
+export enum ContentRating {
+    EVERYONE = "EVERYONE",
+    MATURE = "MATURE",
+    ADULT = "ADULT"
 }
