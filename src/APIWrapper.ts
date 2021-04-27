@@ -20,10 +20,20 @@ export class APIWrapper {
     }
 
     async getTags(source: Source): Promise<TagSection[] | null> {
+
+        if(!source.getTags) {
+            return null
+        }
+
         return source.getTags()
     }
 
     async filterUpdatedManga(source: Source, time: Date, ids: string[]): Promise<MangaUpdates[]> {
+
+        if(!source.filterUpdatedManga) {
+            return []
+        }
+
         // This method uses a callback to get multiple batches of updated manga. Aggrigate the data here
         // and return it all at once as a response
 
@@ -38,6 +48,11 @@ export class APIWrapper {
     }
 
     async getHomePageSections(source: Source): Promise<HomeSection[]> {
+
+        if(!source.getHomePageSections) {
+            return []
+        }
+
         // This method uses a callback to get multiple batches of a homesection. Aggrigate data and return all at once
         var sections: HomeSection[] = [];
         
@@ -62,6 +77,11 @@ export class APIWrapper {
      * you from being in an infinite loop. Defaults to 3.
      */
     async getViewMoreItems(source: Source, homepageSectionId: string, metadata: any, resultPageLimiter: number = 3): Promise<MangaTile[] | null> {
+        
+        if(!source.getViewMoreItems) {
+            return null
+        }
+        
         var results: MangaTile[] = []
         
         // This may (and likely will) run multiple times, for multiple pages. Aggrigate up to the page limiter
@@ -87,6 +107,10 @@ export class APIWrapper {
     }
 
     async getWebsiteMangaDirectory(source: Source, metadata: any): Promise<PagedResults | null> {
+        if(!source.getWebsiteMangaDirectory) {
+            return null
+        }
+        
         return source.getWebsiteMangaDirectory(metadata)
     }
 
