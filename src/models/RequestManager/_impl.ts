@@ -1,5 +1,6 @@
 import { RequestManager, RequestManagerInfo } from "."
 import { Request } from "../RequestObject"
+import { Response } from "../ResponseObject"
 //@ts-ignore
 import axios, { Method } from 'axios'
 
@@ -9,6 +10,12 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
     return {
         ...info,
         schedule: async function (request: Request, retryCount: number) {
+
+            // Pass this request through the interceptor if one exists
+            if(info.interceptor) {
+                request = await info.interceptor.interceptRequest(request)
+            }
+
             // Append any cookies into the header properly
             let headers: any = request.headers ?? {}
 
@@ -44,13 +51,20 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
                 responseType: 'arraybuffer'
             })
 
-            return {
+            let responsePacked: Response = {
                 rawData: createRawData(response.data),
                 data: Buffer.from(response.data, 'binary').toString(),
                 status: response.status,
                 headers: response.headers,
                 request: request
+            } 
+
+            // Pass this through the response interceptor if one exists
+            if(info.interceptor) {
+                responsePacked = await info.interceptor.interceptResponse(responsePacked)
             }
+
+            return responsePacked
         }
     }
 }

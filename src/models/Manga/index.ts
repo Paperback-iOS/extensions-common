@@ -1,3 +1,4 @@
+import { LanguageCode } from "../Languages";
 import { TagSection } from "../TagSection";
 
 export interface Manga {
@@ -35,13 +36,7 @@ export interface Manga {
 	 * A language code for the Manga, if one is available.
 	 * Examples: en is English, jp is Japanese, etc
 	 */
-	langFlag?: string
-
-	/**
-	 * The full language name written out in plaintext.
-	 * "English", "Japanese", etc.
-	 */
-	langName?: string
+	langFlag?: LanguageCode
 
 	/**
 	 * The name of the artist who has worked on this manga
@@ -52,11 +47,6 @@ export interface Manga {
 	 * The author which has written this manga
 	 */
 	author?: string
-
-	/**
-	 * The average rating which this manga gets. 
-	 */
-	avgRating?: number
 
 	/**
 	 * If the manga has additional pictures past the title thumbnail, covers may be used
@@ -81,11 +71,6 @@ export interface Manga {
 	tags?: TagSection[]
 
 	/**
-	 * Currently unused. Will likely get removed in the future.
-	 */
-	users?: number
-
-	/**
 	 * How many views has this manga had up to date
 	 */
 	views?: number
@@ -105,13 +90,15 @@ export interface Manga {
 	/**
 	 * The time which this manga has been updated last
 	 */
-	lastUpdate?: string
+	lastUpdate?: Date
 }
 
 export enum MangaStatus {
 	ONGOING = 1,
 	COMPLETED = 0,
-	UNKNOWN = 2
+	UNKNOWN = 2,
+	ABANDONED = 3,
+	HIATUS = 4
 }
 
 declare global {
