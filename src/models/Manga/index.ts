@@ -36,7 +36,7 @@ export interface Manga {
 	 * A language code for the Manga, if one is available.
 	 * Examples: en is English, jp is Japanese, etc
 	 */
-	langFlag?: LanguageCode
+	langFlag?: string
 
 	/**
 	 * The name of the artist who has worked on this manga
