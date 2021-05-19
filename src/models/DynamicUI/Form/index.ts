@@ -1,7 +1,7 @@
 import { Section } from '../Section'
 
 export interface Form {
-    sections: () => Section[]
+    sections: () => Promise<Section[]>
     onSubmit: () => void
     validate: () => boolean
 }

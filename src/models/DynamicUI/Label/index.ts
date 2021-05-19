@@ -1,6 +1,6 @@
 import { FormRowTyped } from "../FormRow"
 
-export interface Label extends FormRowTyped<string> {
+export interface Label extends FormRowTyped<string | undefined> {
     label: string
 }
 

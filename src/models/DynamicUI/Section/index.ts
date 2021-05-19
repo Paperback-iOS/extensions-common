@@ -1,9 +1,10 @@
 import { FormRow } from "../FormRow"
 
 export interface Section {
-    header: string
-    footer: string
-    rows: () => FormRow[]
+    id: string
+    header?: string
+    footer?: string
+    rows: () => Promise<FormRow[]>
 }
 
 declare global {
