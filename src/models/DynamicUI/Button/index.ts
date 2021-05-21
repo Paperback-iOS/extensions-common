@@ -1,6 +1,6 @@
 import { FormRowTyped } from "../FormRow"
 
-export interface Button extends FormRowTyped<void> {
+export interface Button extends FormRowTyped<string | undefined> {
     label: string
     onTap: () => void
 }

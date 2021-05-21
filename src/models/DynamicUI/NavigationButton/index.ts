@@ -3,7 +3,7 @@ import { FormRowTyped } from "../FormRow"
 
 export interface NavigationButton extends FormRowTyped<string | undefined> {
     label: string
-    destination: Form
+    form: Form
 }
 
 declare global {
