@@ -16,8 +16,8 @@ import {
   PagedResults,
   Cookie,
   RequestHeaders,
-  UserForm,
-  SourceMenu
+  Form,
+  Section
 } from ".."
 
 export abstract class Source {
@@ -72,24 +72,20 @@ export abstract class Source {
    */
   globalRequestCookies?(): Cookie[]
 
-  getSourceMenu?(): Promise<SourceMenu>
-
   /**
    * A stateful source may require user input. 
    * By supplying this value to the Source, the app will render your form to the user
    * in the application settings.
    */
-  getSourceMenuItemForm?(itemId: string): Promise<UserForm>
-  getSourceMenuItemLink?(itemId: string): Promise<URL>
+  getSourceMenu?(): Promise<Section>
 
-  submitSourceMenuItemForm?(id: string, form: any): Promise<void>
 
   /**
    * When the Advanced Search is rendered to the user, this skeleton defines what
    * fields which will show up to the user, and returned back to the source
    * when the request is made.
    */
-  getAdvancedSearchForm?(): Promise<UserForm>
+  getAdvancedSearchForm?(): Promise<Form>
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
