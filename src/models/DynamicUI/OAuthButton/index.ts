@@ -1,6 +1,6 @@
 import { FormRowTyped } from "../FormRow"
 
-export interface OAuthButton extends FormRowTyped<string> {
+export interface OAuthButton extends FormRowTyped<string | undefined> {
     label: string
 
     authorizeEndpoint: String
@@ -8,10 +8,9 @@ export interface OAuthButton extends FormRowTyped<string> {
     responseType: OAuthResponseType
     redirectUri?: string
     scopes?: string[]
-    state: string
 
     /// Store this inside the keychain in the state manager
-    successHandler: (accessToken: string, refreshToken?: string) => void
+    successHandler: (accessToken: string, refreshToken?: string) => Promise<void>
 }
 
 /// No need to make a wrapper for this, you can use it directly
@@ -21,7 +20,7 @@ interface OAuthResponseType {
     /// Only required for "pkce" and "code" response types
     tokenEndpoint?: string
 
-    // Only required for "pkce" response type
+    /// Only required for "pkce" response type
     pkceCodeLength?: number
 }
 

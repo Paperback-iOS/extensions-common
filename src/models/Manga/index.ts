@@ -2,14 +2,6 @@ import { LanguageCode } from "../Languages";
 import { TagSection } from "../TagSection";
 
 export interface Manga {
-
-	/**
-   * The given identifier of this Manga. This may be unique to the source
-   * which uses it. For example, one source may use the value '1234' to 
-   * identify a manga, whereas another one may use the value 'One-Piece' to identify
-   */
-	id: string
-
 	/**
 	 * A list of titles which this Manga is called.
 	 * There may be secondary titles, which can be pushed to this variable
@@ -102,5 +94,7 @@ export enum MangaStatus {
 }
 
 declare global {
-	function createManga(manga: Manga): Manga
+	// @deprecated use `createSourceManga` along with `createMangaInfo`
+	function createManga(info: {id: string} & Manga): Manga
+	function createMangaInfo(info: Manga): Manga
 }
