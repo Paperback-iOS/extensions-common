@@ -1,4 +1,5 @@
 import { Form, PagedResults, RequestManager, SearchRequest } from ".."
+import { Section, TrackerActionQueue } from "../models"
 import { TrackedManga } from "../models/TrackedManga"
 
 export abstract class Tracker {
@@ -9,7 +10,17 @@ export abstract class Tracker {
     abstract readonly requestManager: RequestManager
     constructor(protected cheerio: CheerioAPI) {}
 
-    abstract getSearchResults(query: SearchRequest): Promise<PagedResults>
-    abstract getMangaForm(mangaId: string): Promise<Form>
+    abstract getSearchResults(query: SearchRequest, metadata: unknown): Promise<PagedResults>
+
+    /// This cannot be async since the app expects a form as soon as this function is called
+    /// for async tasks handle them in `sections`.
+    abstract getMangaForm(mangaId: string): Form
+
     abstract getTrackedManga(mangaId: string): Promise<TrackedManga>
+    abstract getSourceMenu(): Promise<Section>
+
+    /// This method MUST dequeue all actions and process them, any unsuccessful actions
+    /// must be marked for retry instead of being left in the queue.
+    /// NOTE: Retried actions older than 24 hours will be discarded
+    abstract processActionQueue(actionQueue: TrackerActionQueue): Promise<void>
 }

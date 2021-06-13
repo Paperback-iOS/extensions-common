@@ -2,7 +2,7 @@ import { FormRowTyped } from "../FormRow"
 
 export interface InputField extends FormRowTyped<string> {
     placeholder: string
-    label: string
+    label?: string
     maskInput: boolean
 }
 
