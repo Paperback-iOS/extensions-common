@@ -1,3 +1,5 @@
+import { Tag } from "../TagSection"
+
 /**
  * The {@link SearchRequest} interface is a list of optional queries, which
  * can be packed together into a search request.
@@ -12,28 +14,20 @@ export interface SearchRequest {
    */
   title?: string
 
-  includeDemographic?: string[]
+  includedTags?: Tag[]
+  excludedTags?: Tag[]
 
-  includeTheme?: string[]
-  includeFormat?: string[]
-  includeContent?: string[]
-  includeGenre?: string[]
+  includeOperator?: SearchOperator
+  excludeOperator?: SearchOperator
 
-  excludeDemographic?: string[]
-  excludeTheme?: string[]
-  excludeFormat?: string[]
-  excludeContent?: string[]
-  excludeGenre?: string[]
-
-  includeOperator?: number
-  excludeOperator?: number
-
-  author?: string
-  artist?: string
-  status?: number
-  hStatus?: boolean
+  /**
+   * This is basically anything other than tags that the user enters such as:
+   * author: ShindoL author: Miyazuki
+   * where `author` would be the key and `ShindoL`, `Myazuki` would be the values. 
+   */
+  parameters: Record<string, string[]>
 }
 
-declare global {
-  function createSearchRequest(searchRequest: SearchRequest): SearchRequest
+export enum SearchOperator {
+  AND = 'AND', OR = 'OR'
 }
