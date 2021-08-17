@@ -1,8 +1,10 @@
 import { Form, PagedResults, RequestManager, SearchRequest } from ".."
 import { Section, TrackerActionQueue } from "../models"
 import { TrackedManga } from "../models/TrackedManga"
+import { Requestable } from "./Requestable"
+import { Searchable } from "./Searchable"
 
-export abstract class Tracker {
+export abstract class Tracker implements Requestable, Searchable {
     /**
      * Manages the ratelimits and the number of requests that can be done per second
      * This is also used to fetch pages when a chapter is downloading

@@ -16,15 +16,13 @@ import {
   PagedResults,
   Cookie,
   RequestHeaders,
-  Form,
-  Section
+  Section,
+  SearchField
 } from ".."
+import { Requestable } from "./Requestable"
+import { Searchable } from "./Searchable"
 
-export abstract class Source {
-  /**
-   * Manages the ratelimits and the number of requests that can be done per second
-   * This is also used to fetch pages when a chapter is downloading
-   */
+export abstract class Source implements Requestable, Searchable {
   abstract readonly requestManager: RequestManager
 
   constructor(public cheerio: CheerioAPI) {}
@@ -59,16 +57,42 @@ export abstract class Source {
    * @param query A app-filled query which the search request should request from the website.
    * @param metadata A persistant metadata parameter which can be filled out with any data required between search page sections
    */
-  abstract searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults>
+  abstract getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResults>
+
+  /**
+   * @deprecated use {@link Source.getSearchResults getSearchResults} instead
+   */
+  searchRequest(query: SearchRequest, metadata: any): Promise<PagedResults> {
+    return this.getSearchResults(query, metadata)
+  }
 
   // <-----------        OPTIONAL METHODS        -----------> //
+
+  getSearchFields?(): Promise<SearchField[]>
+
   /**
-   * @deprecated Do not use this methods, register an interceptor with RequestManager instead
+   * (OPTIONAL METHOD) A function which communicates with a given source, and returns a list of all possible tags which the source supports.
+   * These tags are generic and depend on the source. They could be genres such as 'Isekai, Action, Drama', or they can be 
+   * listings such as 'Completed, Ongoing'
+   * These tags must be tags which can be used in the {@link searchRequest} function to augment the searching capability of the application
+   */
+  getSearchTags?(): Promise<TagSection[]>
+
+  /**
+   * @deprecated use {@link Source.getSearchTags} instead
+   */
+  getTags = this.getSearchTags
+
+  supportsTagExclusion?(): Promise<boolean>
+  supportsSearchOperators?(): Promise<boolean>
+
+  /**
+   * @deprecated Do not use this methods, register an interceptor with {@link RequestManager} instead
    */
   globalRequestHeaders?(): RequestHeaders
 
   /**
-   * @deprecated Do not use this method, register an interceptor with RequestManager instead
+   * @deprecated Do not use this method, register an interceptor with {@link RequestManager} instead
    */
   globalRequestCookies?(): Cookie[]
 
@@ -78,14 +102,6 @@ export abstract class Source {
    * in the application settings.
    */
   getSourceMenu?(): Promise<Section>
-
-
-  /**
-   * When the Advanced Search is rendered to the user, this skeleton defines what
-   * fields which will show up to the user, and returned back to the source
-   * when the request is made.
-   */
-  getAdvancedSearchForm?(): Promise<Form>
 
   /**
    * (OPTIONAL METHOD) Given a manga ID, return a URL which Safari can open in a browser to display.
@@ -100,14 +116,6 @@ export abstract class Source {
    * Usually the {@link Request} url can simply be the base URL to the source.
    */
   getCloudflareBypassRequest?(): Request
-
-  /**
-   * (OPTIONAL METHOD) A function which communicates with a given source, and returns a list of all possible tags which the source supports.
-   * These tags are generic and depend on the source. They could be genres such as 'Isekai, Action, Drama', or they can be 
-   * listings such as 'Completed, Ongoing'
-   * These tags must be tags which can be used in the {@link searchRequest} function to augment the searching capability of the application
-   */
-  getTags?(): Promise<TagSection[]>
 
   /**
    * (OPTIONAL METHOD) A function which should scan through the latest updates section of a website, and report back with a list of IDs which have been
