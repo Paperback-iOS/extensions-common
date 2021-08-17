@@ -81,7 +81,10 @@ export abstract class Source implements Requestable, Searchable {
   /**
    * @deprecated use {@link Source.getSearchTags} instead
    */
-  getTags = this.getSearchTags
+  async getTags(): Promise<TagSection[]> {
+    // @ts-ignore
+    return this.getSearchTags?.()
+  }
 
   supportsTagExclusion?(): Promise<boolean>
   supportsSearchOperators?(): Promise<boolean>
