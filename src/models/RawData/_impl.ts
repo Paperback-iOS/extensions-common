@@ -9,6 +9,7 @@ _global.createByteArray = function (rawData: RawData): ByteArray {
 _global.createRawData = function (byteArray: ByteArray): RawData {
     return {
         ...byteArray,
+        length: byteArray.length,
         toString: () => {
             var out, i, len, c;
             var char2, char3;
