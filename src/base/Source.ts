@@ -3,6 +3,7 @@
  * This allows us to to use a generic api to make the calls against any source
  */
 
+import { CheerioAPI } from "cheerio"
 import {
   HomeSection,
   SearchRequest,

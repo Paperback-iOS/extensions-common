@@ -13,11 +13,10 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "^1.0.0-rc.10",
     "typescript": "^3.9.7"
   },
   "devDependencies": {
-    "@types/cheerio": "^0.22.21",
     "@types/mocha": "^8.2.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
