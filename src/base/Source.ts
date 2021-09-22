@@ -34,7 +34,7 @@ export abstract class Source implements Requestable, Searchable {
    * to grab and populate a {@link Manga} object
    * @param mangaId The ID which this function is expected to grab data for
    */
-  abstract getMangaDetails(mangaId: string): Promise<SourceManga>
+  abstract getMangaDetails(mangaId: string): Promise<SourceManga | Manga>
 
   /**
    * Given a mangaID, this function should use a {@link Request} object's {@link Request.perform} method
