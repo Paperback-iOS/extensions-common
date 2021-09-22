@@ -11,7 +11,7 @@ _global.createSourceStateManager = function (info: SourceStateManagerInfo): Sour
             return Promise.resolve()
         },
         retrieve: function (key: string) {
-            return Promise.resolve(virtualStateStore[key] ?? "")
+            return Promise.resolve(virtualStateStore[key])
         },
         keychain: {
             store: function (key: string, value: unknown) {
@@ -20,7 +20,7 @@ _global.createSourceStateManager = function (info: SourceStateManagerInfo): Sour
                 return Promise.resolve()
             },
             retrieve: function (key: string) {
-                return Promise.resolve(virtualKeychainStore[key] ?? "")
+                return Promise.resolve(virtualKeychainStore[key])
             }
         }
     }
