@@ -1,4 +1,4 @@
-import { PagedResults, SearchField, SearchRequest, TagSection } from "../models"
+import { PagedResults, SearchField, SearchRequest, TagSection } from ".."
 import { Requestable } from "./Requestable"
 
 export interface Searchable extends Requestable {

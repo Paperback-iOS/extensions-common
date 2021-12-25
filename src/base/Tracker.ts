@@ -1,7 +1,7 @@
 import { CheerioAPI } from "cheerio"
 import { Form, PagedResults, RequestManager, SearchRequest } from ".."
-import { Section, TrackerActionQueue } from "../models"
-import { TrackedManga } from "../models/TrackedManga"
+import { Section, TrackerActionQueue } from ".."
+import { TrackedManga } from ".."
 import { Requestable } from "./Requestable"
 import { Searchable } from "./Searchable"
 

@@ -2,6 +2,7 @@
 node_modules
 dist
 bundles
+lib
 
 #compiled sources
 
