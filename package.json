@@ -1,6 +1,6 @@
 {
   "name": "paperback-extensions-common",
-  "version": "5.0.0-alpha.5",
+  "version": "5.0.0-alpha.6",
   "description": "The base methods and structures for a Paperback extension repo",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
