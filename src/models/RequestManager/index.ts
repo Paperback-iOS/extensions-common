@@ -1,4 +1,4 @@
-import { Request } from "../RequestObject"
+import { Request, Cookie } from "../RequestObject"
 import { Response } from "../ResponseObject"
 import { RequestInterceptor } from "../RequestInterceptor"
 
@@ -14,7 +14,10 @@ export interface RequestManagerInfo {
 }
 
 export interface RequestManager extends RequestManagerInfo {
-    schedule: (request: Request, retryCount: number) => Promise<Response>
+    schedule: (request: Request, retryCount: number) => Promise<Response>,
+    cookieStore: {
+        getAllCookies: () => Cookie[]
+    }
 }
 
 declare global {
