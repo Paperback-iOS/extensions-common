@@ -1,11 +1,14 @@
-import { RequestManager, RequestManagerInfo, Request, Response } from ".."
+import { RequestManager, RequestManagerInfo, Request, Response, Cookie } from ".."
 
-//@ts-ignore
 import axios, { Method } from 'axios'
+import { CookieJar } from 'tough-cookie';
+import { HttpCookieAgent, HttpsCookieAgent } from 'http-cookie-agent/http';
 
 const _global = global as any
 
 _global.createRequestManager = function (info: RequestManagerInfo): RequestManager {
+    const jar = new CookieJar();
+    let cookies: Cookie[] = []
     return {
         ...info,
         schedule: async function (request: Request, retryCount: number) {
@@ -47,8 +50,19 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
                 headers: headers,
                 data: decodedData,
                 timeout: info.requestTimeout || 0,
-                responseType: 'arraybuffer'
+                responseType: 'arraybuffer',
+                httpAgent: new HttpCookieAgent({ cookies: { jar } }),
+                httpsAgent: new HttpsCookieAgent({ cookies: { jar } }),
             })
+
+            cookies = (await jar.getCookies(request.url)).map(cookie => ({
+                name: cookie.key,
+                value: cookie.value,
+                domain: cookie.domain || new URL(request.url).host,
+                path: cookie.path || undefined,
+                created: cookie.creation || undefined,
+                expires: cookie.expires instanceof Date ? cookie.expires : undefined
+            }))
 
             let responsePacked: Response = {
                 rawData: createRawData(response.data),
@@ -64,6 +78,11 @@ _global.createRequestManager = function (info: RequestManagerInfo): RequestManag
             }
 
             return responsePacked
+        },
+        cookieStore: {
+            getAllCookies: function () {
+                return cookies
+            }
         }
     }
 }
